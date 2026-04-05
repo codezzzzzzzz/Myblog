@@ -84,7 +84,10 @@ onMounted(async () => {
         margin-right: 16px;
 
         img {
+          display: block;
+          width: 100%;
           height: 100%;
+          object-fit: cover;
         }
       }
 
@@ -146,8 +149,10 @@ onMounted(async () => {
             overflow: hidden;
 
             img {
-              height: 100%;
+              display: block;
               width: 100%;
+              height: 100%;
+              object-fit: cover;
             }
           }
 

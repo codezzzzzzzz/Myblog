@@ -15,7 +15,7 @@
           <div class="banner" v-if="articleDetail.cover_pic">
             <img :src="articleDetail.cover_pic" alt="">
           </div>
-          <div class="article-content" v-html="articleDetail.content"></div>
+          <div class="article-content markdown-body" v-html="renderedContent"></div>
         </article>
 
         <div class="share">
@@ -95,7 +95,8 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
+import { renderArticleBody } from '@/utils/markdown.js'
 import { useRoute } from 'vue-router'
 import { getArticleDetailById, addLikeApi, addCommentApi, getCommentList } from '@/api/index.js'
 import { formateDate } from '@/utils/formateDate.js'
@@ -108,6 +109,8 @@ const route = useRoute()
 const articleDetail = ref({})
 const comment = ref('')
 const commentList = ref([])
+
+const renderedContent = computed(() => renderArticleBody(articleDetail.value?.content))
 
 onMounted(async () => {
   const res = await getArticleDetailById(route.query.id)
@@ -176,41 +179,49 @@ const publish = async() => {
 <style lang="less" scoped>
 .article_detail {
   width: 100%;
-  background-color: #F9FAFB;
+  background: linear-gradient(180deg, #f3f4f6 0%, #f9fafb 32%, #f9fafb 100%);
   min-height: calc(100vh - 140px);
-  padding: 32px 0;
+  padding: 28px 0 48px;
   box-sizing: border-box;
 
   .detail-container {
     display: flex;
-    max-width: 1200px;
+    max-width: 1180px;
     margin: 0 auto;
-    gap: 32px;
+    gap: 28px;
     padding: 0 20px;
-    
+    align-items: flex-start;
+
     .detail {
       flex: 1;
+      min-width: 0;
       background-color: #fff;
       border-radius: 16px;
-      padding: 32px 24px;
+      padding: 36px 40px 40px;
       box-sizing: border-box;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
 
       .title {
-        font-family: Roboto, Roboto;
         font-weight: 700;
-        font-size: 30px;
+        font-size: clamp(1.5rem, 2.5vw, 1.875rem);
         color: #111827;
-        line-height: 36px;
-        margin-bottom: 16px;
+        line-height: 1.25;
+        margin-bottom: 18px;
+        letter-spacing: -0.02em;
       }
 
       .user {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 8px 0;
         font-weight: 400;
         font-size: 14px;
-        color: #6B7280;
+        color: #6b7280;
         line-height: 20px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #f3f4f6;
 
         .avatar {
           width: 40px;
@@ -218,9 +229,13 @@ const publish = async() => {
           border-radius: 50%;
           overflow: hidden;
           margin-right: 12px;
+          flex-shrink: 0;
 
           img {
             width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
           }
         }
 
@@ -243,68 +258,29 @@ const publish = async() => {
       }
 
       article {
-        padding: 32px 0 56px 0;
+        padding: 28px 0 48px;
 
         .banner {
           width: 100%;
-          height: 256px;
-          margin-bottom: 32px;
+          height: ~"min(280px, 36vw)";
+          max-height: 320px;
+          margin-bottom: 28px;
           overflow: hidden;
-          border-radius: 16px;
+          border-radius: 14px;
+          border: 1px solid #e5e7eb;
+          background: #f3f4f6;
 
           img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: block;
           }
         }
-        
+
         .article-content {
-          line-height: 1.8;
-          color: #333;
-          
-          h1, h2, h3, h4, h5, h6 {
-            margin: 20px 0 10px 0;
-            font-weight: 600;
-          }
-          
-          p {
-            margin-bottom: 16px;
-          }
-          
-          img {
-            max-width: 100%;
-            border-radius: 8px;
-            margin: 16px 0;
-          }
-          
-          code {
-            background-color: #f0f0f0;
-            padding: 2px 4px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-          }
-          
-          pre {
-            background-color: #f0f0f0;
-            padding: 16px;
-            border-radius: 8px;
-            overflow-x: auto;
-            margin: 16px 0;
-            
-            code {
-              background-color: transparent;
-              padding: 0;
-            }
-          }
-          
-          blockquote {
-            border-left: 4px solid #409eff;
-            padding-left: 16px;
-            margin: 16px 0;
-            color: #666;
-            font-style: italic;
-          }
+          max-width: 100%;
+          font-size: 17px;
         }
       }
 
@@ -343,20 +319,22 @@ const publish = async() => {
     }
     
     .sidebar {
-      width: 300px;
+      width: 288px;
       flex-shrink: 0;
-      
+
       .sidebar-section {
         background-color: #fff;
-        border-radius: 16px;
-        padding: 24px;
-        margin-bottom: 20px;
-        
+        border-radius: 14px;
+        padding: 22px;
+        margin-bottom: 16px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05);
+
         h3 {
-          font-size: 16px;
+          font-size: 15px;
           font-weight: 600;
-          margin-bottom: 16px;
-          color: #333;
+          margin-bottom: 14px;
+          color: #111827;
         }
         
         .info-item {
@@ -409,34 +387,49 @@ const publish = async() => {
   }
 
   .comment {
-    max-width: 1200px;
-    margin: 0 auto;
-    margin-top: 48px;
-    padding: 0 20px;
+    width: ~"min(100% - 40px, 1180px)";
+    max-width: 1180px;
+    margin: 40px auto 0;
+    padding: 28px 24px 32px;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+    box-sizing: border-box;
 
     .title {
       font-weight: 700;
-      font-size: 24px;
+      font-size: 22px;
       color: #111827;
-      line-height: 32px;
-      margin-bottom: 24px;
+      line-height: 1.3;
+      margin-bottom: 20px;
     }
 
     .comment-input {
       width: 100%;
-      height: 114px;
-      border-radius: 16px;
-      border: 1px solid #E5E7EB;
+      height: 120px;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
       overflow: hidden;
-      margin-bottom: 15px;
+      margin-bottom: 14px;
+      transition: border-color 0.2s;
+
+      &:focus-within {
+        border-color: #c4b5fd;
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+      }
 
       textarea {
         border: none;
         width: 100%;
         height: 100%;
-        padding: 10px;
+        padding: 14px 16px;
         box-sizing: border-box;
         outline: none;
+        font-size: 14px;
+        line-height: 1.5;
+        resize: vertical;
+        min-height: 100px;
       }
     }
 

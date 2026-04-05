@@ -7,11 +7,13 @@ axios.defaults.baseURL = import.meta.env.DEV
   ? 'http://localhost:3000'
   : '/api'  // 👈 👈 👈 这里改成 /api 就彻底通了！
 
-// 请求拦截器
+// 请求拦截器（与 Login/Register 约定：只应在一侧存有 token；localStorage 优先于 sessionStorage）
+// 注意：服务端 jwt.verify 使用完整字符串；不要擅自加 Bearer，否则与旧版服务端/部分环境组合可能校验失败
 axios.interceptors.request.use(req => {
-  let token = localStorage.getItem('token') || sessionStorage.getItem('token')
+  const raw = localStorage.getItem('token') || sessionStorage.getItem('token')
+  const token = raw ? String(raw).trim() : ''
   if (token) {
-    req.headers.Authorization = token
+    req.headers.Authorization = token.replace(/^Bearer\s+/i, '')
   }
   return req
 })
@@ -23,7 +25,7 @@ axios.interceptors.response.use(res => {
     return Promise.reject(res)
   } else {
     if (res.data.code === 401) {
-      ElMessage.error(res.data.msg)
+      ElMessage.error(res.data.msg || '登录已失效，请重新登录')
       return Promise.reject(res)
     }
     if (res.data.code !== 200) {

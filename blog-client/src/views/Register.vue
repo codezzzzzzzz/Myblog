@@ -93,6 +93,7 @@ const register = async () => {
       username: name,
       password: md5(password.value)
     })
+    localStorage.removeItem('token')
     sessionStorage.setItem('token', loginRes.token)
     localStorage.setItem('userInfo', JSON.stringify(loginRes.data))
     ElMessage.success('注册成功')

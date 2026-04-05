@@ -59,24 +59,22 @@ const login = async () => {
     ElMessage.error('账号或密码不能为空')
     return
   }
-  // 发送登录请求
-  const res = await userLogin({ username: username.value, password: md5(password.value) })
-  console.log(res);
-
-  // 是不是要记住我
-  if (remember.value) {
-    console.log(res);
-    localStorage.setItem('token', res.token)
-  } else {
-    localStorage.removeItem('token')
-    sessionStorage.setItem('token', res.token)
+  try {
+    const res = await userLogin({ username: username.value, password: md5(password.value) })
+    // axios 优先读 localStorage 再读 sessionStorage；只写一侧时必须清空另一侧，否则会一直带上过期的旧 token
+    if (remember.value) {
+      localStorage.setItem('token', res.token)
+      sessionStorage.removeItem('token')
+    } else {
+      localStorage.removeItem('token')
+      sessionStorage.setItem('token', res.token)
+    }
+    localStorage.setItem('userInfo', JSON.stringify(res.data))
+    ElMessage.success('登录成功')
+    router.back()
+  } catch (e) {
+    // 账号错误等已由 axios 拦截器提示
   }
-
-  localStorage.setItem('userInfo', JSON.stringify(res.data))
-
-  ElMessage.success('登录成功')
-
-  router.back()
 }
 </script>
 
