@@ -163,6 +163,43 @@ const getCommentList = (id) => {
   return allServices.query(_sql)
 }
 
+// 获取当前用户的文章列表
+const getMyArticles = (user_id) => {
+  let _sql = `SELECT * FROM article WHERE user_id = ${user_id} ORDER BY create_time DESC;`
+  return allServices.query(_sql)
+}
+
+// 创建文章
+const createArticle = (title, content, create_time, user_id, cover_pic, article_desc) => {
+  let _sql = `INSERT INTO article (title, content, create_time, user_id, cover_pic, article_desc, like_num) VALUES (?, ?, ?, ?, ?, ?, 0);`
+  return allServices.query(_sql, [title, content, create_time, user_id, cover_pic, article_desc])
+}
+
+// 更新文章
+const updateArticle = (id, title, content, create_time, cover_pic, article_desc, user_id) => {
+  let _sql = `UPDATE article SET title=?, content=?, create_time=?, cover_pic=?, article_desc=? WHERE id=? AND user_id=?;`
+  return allServices.query(_sql, [title, content, create_time, cover_pic, article_desc, id, user_id])
+}
+
+// 删除文章
+const deleteArticle = (id, user_id) => {
+  let _sql = `DELETE FROM article WHERE id=${id} AND user_id=${user_id};`
+  return allServices.query(_sql)
+}
+
+// 关联文章和标签
+const addArticleTags = (article_id, tag_ids) => {
+  const values = tag_ids.map(tag_id => `(${article_id}, ${tag_id})`).join(', ')
+  let _sql = `INSERT INTO article_tags (article_id, tag_id) VALUES ${values};`
+  return allServices.query(_sql)
+}
+
+// 删除文章标签关联
+const deleteArticleTags = (article_id) => {
+  let _sql = `DELETE FROM article_tags WHERE article_id=${article_id};`
+  return allServices.query(_sql)
+}
+
 module.exports = {
   getNewsArticleList,
   getAllArticleCategory,
@@ -175,5 +212,11 @@ module.exports = {
   getArchiveList,
   addLike,
   addComment,
-  getCommentList
+  getCommentList,
+  getMyArticles,
+  createArticle,
+  updateArticle,
+  deleteArticle,
+  addArticleTags,
+  deleteArticleTags
 }

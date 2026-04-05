@@ -1,39 +1,73 @@
 <template>
   <div class="article_detail">
-    <div class="detail">
-      <div class="title">{{ articleDetail.title }}</div>
-      <div class="user">
-        <div class="avatar">
-          <img src="@/assets/avatar.png" alt="">
+    <div class="detail-container">
+      <div class="detail">
+        <div class="title">{{ articleDetail.title }}</div>
+        <div class="user">
+          <div class="avatar">
+            <img src="@/assets/avatar.png" alt="">
+          </div>
+          <div class="atuhor after">作者：蜗牛</div>
+          <div class="time after">发布于：{{ formateDate(articleDetail.create_time) }}</div>
+          <div class="read">阅读：{{ articleDetail.read || 0 }}</div>
         </div>
-        <div class="atuhor after">作者：{{ articleDetail.author }}</div>
-        <div class="time after">发布于：{{ formateDate(articleDetail.create_time) }}</div>
-        <div class="read">阅读：{{ articleDetail.read }}</div>
-      </div>
-      <article>
-        <div class="banner">
-          <img :src="articleDetail.article_cover_pic" alt="">
-        </div>
-        <div class="article-content" v-html="articleDetail.content"></div>
-      </article>
+        <article>
+          <div class="banner" v-if="articleDetail.cover_pic">
+            <img :src="articleDetail.cover_pic" alt="">
+          </div>
+          <div class="article-content" v-html="articleDetail.content"></div>
+        </article>
 
-      <div class="share">
-        <div class="left">
-          <div class="share-item" :style="{ background: randomColor(50, 150) }">
-            <i class="iconfont icon-weixin"></i>
+        <div class="share">
+          <div class="left">
+            <div class="share-item" :style="{ background: randomColor(50, 150) }">
+              <i class="iconfont icon-weixin"></i>
+            </div>
+            <div class="share-item" :style="{ background: randomColor(50, 150) }">
+              <i class="iconfont icon-QQ"></i>
+            </div>
           </div>
-          <div class="share-item" :style="{ background: randomColor(50, 150) }">
-            <i class="iconfont icon-QQ"></i>
+          <div class="right">
+            <el-button color="#8E6FF7" class="btn" @click="addLike">
+              <i class="iconfont icon-dianzan"></i>
+              点赞文章 ({{ articleDetail.like_num || 0 }})
+            </el-button>
           </div>
         </div>
-        <div class="right">
-          <el-button color="#8E6FF7" class="btn" @click="addLike">
-            <i class="iconfont icon-dianzan"></i>
-            点赞文章
-          </el-button>
+      </div>
+      
+      <!-- 侧边栏 -->
+      <div class="sidebar">
+        <div class="sidebar-section">
+          <h3>文章信息</h3>
+          <div class="info-item">
+            <span class="label">发布时间：</span>
+            <span class="value">{{ formateDate(articleDetail.create_time) }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">点赞数：</span>
+            <span class="value">{{ articleDetail.like_num || 0 }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">评论数：</span>
+            <span class="value">{{ commentList.length }}</span>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <h3>关于作者</h3>
+          <div class="author-info">
+            <div class="author-avatar">
+              <img src="@/assets/avatar.png" alt="">
+            </div>
+            <div class="author-desc">
+              <p class="author-name">蜗牛</p>
+              <p class="author-bio">全栈开发工程师，专注于Web开发和人工智能技术</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+    
     <div class="comment">
       <div class="title">评论</div>
       <div class="comment-input">
@@ -147,116 +181,238 @@ const publish = async() => {
   padding: 32px 0;
   box-sizing: border-box;
 
-  .detail {
-    width: 60%;
+  .detail-container {
+    display: flex;
+    max-width: 1200px;
     margin: 0 auto;
-    background-color: #fff;
-    border-radius: 16px;
-    padding: 32px 24px;
-    box-sizing: border-box;
+    gap: 32px;
+    padding: 0 20px;
+    
+    .detail {
+      flex: 1;
+      background-color: #fff;
+      border-radius: 16px;
+      padding: 32px 24px;
+      box-sizing: border-box;
 
-    .title {
-      font-family: Roboto, Roboto;
-      font-weight: 700;
-      font-size: 30px;
-      color: #111827;
-      line-height: 36px;
-      margin-bottom: 16px;
-    }
-
-    .user {
-      display: flex;
-      align-items: center;
-      font-weight: 400;
-      font-size: 14px;
-      color: #6B7280;
-      line-height: 20px;
-
-      .avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        overflow: hidden;
-        margin-right: 12px;
-
-        img {
-          width: 100%;
-        }
+      .title {
+        font-family: Roboto, Roboto;
+        font-weight: 700;
+        font-size: 30px;
+        color: #111827;
+        line-height: 36px;
+        margin-bottom: 16px;
       }
 
-      .after {
-        margin-right: 8px;
-        padding-right: 8px;
-        position: relative;
-
-        &::after {
-          content: '';
-          width: 1px;
-          height: 12px;
-          background-color: #6B7280;
-          position: absolute;
-          right: 0;
-          top: 50%;
-          transform: translateY(-50%);
-        }
-      }
-    }
-
-    article {
-      padding: 32px 0 56px 0;
-
-      .banner {
-        width: 100%;
-        height: 256px;
-        margin-bottom: 32px;
-        overflow: hidden;
-        border-radius: 16px;
-
-        img {
-          width: 100%;
-        }
-      }
-    }
-
-    .share {
-      width: 100%;
-      height: 68px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      .left {
+      .user {
         display: flex;
+        align-items: center;
+        font-weight: 400;
+        font-size: 14px;
+        color: #6B7280;
+        line-height: 20px;
 
-        .share-item {
-          margin-right: 16px;
-          width: 32px;
-          height: 32px;
+        .avatar {
+          width: 40px;
+          height: 40px;
           border-radius: 50%;
-          cursor: pointer;
-          // background-color: #6B7280;
-          text-align: center;
-          line-height: 32px;
+          overflow: hidden;
+          margin-right: 12px;
 
-          .iconfont {
-            font-size: 20px;
-            color: #fff;
+          img {
+            width: 100%;
+          }
+        }
+
+        .after {
+          margin-right: 8px;
+          padding-right: 8px;
+          position: relative;
+
+          &::after {
+            content: '';
+            width: 1px;
+            height: 12px;
+            background-color: #6B7280;
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
           }
         }
       }
 
-      .right {
-        .btn {
-          color: #fff;
+      article {
+        padding: 32px 0 56px 0;
+
+        .banner {
+          width: 100%;
+          height: 256px;
+          margin-bottom: 32px;
+          overflow: hidden;
+          border-radius: 16px;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+        
+        .article-content {
+          line-height: 1.8;
+          color: #333;
+          
+          h1, h2, h3, h4, h5, h6 {
+            margin: 20px 0 10px 0;
+            font-weight: 600;
+          }
+          
+          p {
+            margin-bottom: 16px;
+          }
+          
+          img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 16px 0;
+          }
+          
+          code {
+            background-color: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+          }
+          
+          pre {
+            background-color: #f0f0f0;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 16px 0;
+            
+            code {
+              background-color: transparent;
+              padding: 0;
+            }
+          }
+          
+          blockquote {
+            border-left: 4px solid #409eff;
+            padding-left: 16px;
+            margin: 16px 0;
+            color: #666;
+            font-style: italic;
+          }
+        }
+      }
+
+      .share {
+        width: 100%;
+        height: 68px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .left {
+          display: flex;
+
+          .share-item {
+            margin-right: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            text-align: center;
+            line-height: 32px;
+
+            .iconfont {
+              font-size: 20px;
+              color: #fff;
+            }
+          }
+        }
+
+        .right {
+          .btn {
+            color: #fff;
+          }
+        }
+      }
+    }
+    
+    .sidebar {
+      width: 300px;
+      flex-shrink: 0;
+      
+      .sidebar-section {
+        background-color: #fff;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+        
+        h3 {
+          font-size: 16px;
+          font-weight: 600;
+          margin-bottom: 16px;
+          color: #333;
+        }
+        
+        .info-item {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 12px;
+          font-size: 14px;
+          
+          .label {
+            color: #666;
+          }
+          
+          .value {
+            color: #333;
+            font-weight: 500;
+          }
+        }
+        
+        .author-info {
+          .author-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 12px;
+            
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+          }
+          
+          .author-desc {
+            .author-name {
+              font-weight: 600;
+              margin-bottom: 4px;
+              color: #333;
+            }
+            
+            .author-bio {
+              font-size: 12px;
+              color: #666;
+              line-height: 1.4;
+            }
+          }
         }
       }
     }
   }
 
   .comment {
-    width: 60%;
+    max-width: 1200px;
     margin: 0 auto;
     margin-top: 48px;
+    padding: 0 20px;
 
     .title {
       font-weight: 700;
@@ -333,6 +489,19 @@ const publish = async() => {
             line-height: 16px;
           }
         }
+      }
+    }
+  }
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .article_detail {
+    .detail-container {
+      flex-direction: column;
+      
+      .sidebar {
+        width: 100%;
       }
     }
   }

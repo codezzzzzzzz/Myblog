@@ -1,12 +1,11 @@
 // 封装 axios 做一些公共的配置，以及错误统一处理
 import axios from 'axios'
+import { ElMessage } from 'element-plus'
 
 // ✅ 开发环境用 localhost，生产环境用 /api（由Nginx代理转发）
 axios.defaults.baseURL = import.meta.env.DEV
   ? 'http://localhost:3000'
   : '/api'  // 👈 👈 👈 这里改成 /api 就彻底通了！
-
-axios.defaults.headers.post['Content-Type'] = 'application/json'
 
 // 请求拦截器
 axios.interceptors.request.use(req => {

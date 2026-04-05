@@ -21,7 +21,11 @@ CREATE TABLE IF NOT EXISTS article (
     title VARCHAR(200) NOT NULL,
     content TEXT,
     create_time BIGINT,
-    like_num INT DEFAULT 0
+    like_num INT DEFAULT 0,
+    user_id INT NOT NULL,
+    cover_pic VARCHAR(255),
+    article_desc VARCHAR(255),
+    FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
 -- 标签表
@@ -77,19 +81,28 @@ INSERT INTO
         title,
         content,
         create_time,
-        like_num
+        like_num,
+        user_id,
+        cover_pic,
+        article_desc
     )
 VALUES (
         '欢迎使用本博客',
         '这是第一篇测试文章。',
         UNIX_TIMESTAMP() * 1000,
-        0
+        0,
+        1,
+        'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=blog%20cover%20image%20minimalist&image_size=square',
+        '欢迎来到我的个人博客，这里记录我的技术分享和生活感悟。'
     ),
     (
         '第二篇文章',
         '再写一篇试试。',
         UNIX_TIMESTAMP() * 1000,
-        0
+        0,
+        1,
+        'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=programming%20technology%20blog&image_size=square',
+        '这是我的第二篇测试文章，测试文章编辑功能。'
     );
 
 -- 关联文章和标签（根据上面插入的 id，article 1 对应 tag 1,2；article 2 对应 tag 2,3）

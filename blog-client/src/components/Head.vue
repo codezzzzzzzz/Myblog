@@ -7,6 +7,7 @@
       <div class="link">
         <router-link to="/home"> 首页 </router-link>
         <router-link to="/article"> 文章 </router-link>
+        <router-link to="/my-articles"> 我的文章 </router-link>
         <router-link to="/conclude"> 归档 </router-link>
         <router-link to="/about"> 关于 </router-link>
       </div>
@@ -17,10 +18,8 @@
         <router-link class="btn active" to="/login"> 登录 </router-link>
         <router-link class="btn" to="/register"> 注册 </router-link>
       </div>
-      <div class="user" v-else>
-        <div class="avatar">
-          <img :src="(userInfo && userInfo.avatar) ? userInfo.avatar : baseAvatar" alt="">
-        </div>
+      <div v-else class="user">
+        <router-link class="btn active" to="/login" @click="logout"> 退出 </router-link>
       </div>
     </div>
   </div>
@@ -35,6 +34,12 @@ import baseAvatar from '@/assets/vue.svg'
 
 const inputSearch = ref('')
 const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null')
+
+const logout = () => {
+  localStorage.removeItem('token')
+  sessionStorage.removeItem('token')
+  router.push('/login')
+}
 </script>
 
 <style lang="less" scoped>

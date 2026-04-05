@@ -10,6 +10,12 @@ function sign(option) {
 function verify() {
   return async(ctx, next) => {
     let token = ctx.request.headers.authorization
+    if (!token && ctx.request.body && ctx.request.body.token) {
+      token = ctx.request.body.token
+    }
+    if (!token && ctx.request.query && ctx.request.query.token) {
+      token = ctx.request.query.token
+    }
     if (token) {
       // 校验
       try {

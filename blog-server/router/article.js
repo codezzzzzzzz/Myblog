@@ -1,6 +1,9 @@
 // 定义跟文章相关的接口
 const Router = require('koa-router')
 const router = new Router()
+const multer = require('multer')
+const path = require('path')
+const fs = require('fs')
 const {
   getNewsArticleList,
   getAllArticleCategory,
@@ -11,11 +14,45 @@ const {
   getArchiveList,
   addLike,
   addComment,
-  getCommentList
+  getCommentList,
+  getMyArticles,
+  createArticle,
+  updateArticle,
+  deleteArticle,
+  addArticleTags,
+  deleteArticleTags
 } = require('../controllers/index.js')
 const { verify } = require('../utils/jwt.js')
 const { sanitizeComment } = require('../utils/xss.js')
 
+// 确保uploads目录存在
+const uploadDir = path.join(__dirname, '../uploads')
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true })
+}
+
+// 配置multer
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir)
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    const ext = path.extname(file.originalname)
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext)
+  }
+})
+
+const upload = multer({ storage: storage })
+
+function koaMulter(mw) {
+  return async (ctx, next) => {
+    await new Promise((resolve, reject) => {
+      mw(ctx.req, ctx.res, (err) => (err ? reject(err) : resolve()))
+    })
+    await next()
+  }
+}
 
 // 路由前缀
 router.prefix('/article')
@@ -255,6 +292,166 @@ router.get('/getCommentList', async (ctx, next) => {
   }
 })
 
+// 获取我的文章列表
+router.get('/my-articles', verify(), async (ctx, next) => {
+  const user_id = ctx.user_id
+  try {
+    const res = await getMyArticles(user_id)
+    ctx.body = {
+      code: 200,
+      data: res,
+      msg: '查询成功'
+    }
+  } catch (error) {
+    ctx.body = {
+      code: 500,
+      data: error,
+      msg: '服务器异常'
+    }
+  }
+})
+
+// 创建文章
+router.post('/create', verify(), async (ctx, next) => {
+  const { title, content, create_time, cover_pic, article_desc, tags } = ctx.request.body
+  const user_id = ctx.user_id
+  try {
+    const res = await createArticle(title, content, create_time, user_id, cover_pic, article_desc)
+    if (res.insertId && tags && tags.length > 0) {
+      await addArticleTags(res.insertId, tags)
+    }
+    ctx.body = {
+      code: 200,
+      data: res,
+      msg: '创建成功'
+    }
+  } catch (error) {
+    ctx.body = {
+      code: 500,
+      data: error,
+      msg: '服务器异常'
+    }
+  }
+})
+
+// 更新文章
+router.put('/update', verify(), async (ctx, next) => {
+  const { id, title, content, create_time, cover_pic, article_desc, tags } = ctx.request.body
+  const user_id = ctx.user_id
+  try {
+    const res = await updateArticle(id, title, content, create_time, cover_pic, article_desc, user_id)
+    if (res.affectedRows && tags) {
+      await deleteArticleTags(id)
+      if (tags.length > 0) {
+        await addArticleTags(id, tags)
+      }
+    }
+    ctx.body = {
+      code: 200,
+      data: res,
+      msg: '更新成功'
+    }
+  } catch (error) {
+    ctx.body = {
+      code: 500,
+      data: error,
+      msg: '服务器异常'
+    }
+  }
+})
+
+// 删除文章
+router.delete('/delete', verify(), async (ctx, next) => {
+  const { id } = ctx.request.body
+  const user_id = ctx.user_id
+  try {
+    await deleteArticleTags(id)
+    const res = await deleteArticle(id, user_id)
+    ctx.body = {
+      code: 200,
+      data: res,
+      msg: '删除成功'
+    }
+  } catch (error) {
+    ctx.body = {
+      code: 500,
+      data: error,
+      msg: '服务器异常'
+    }
+  }
+})
+
+// 上传封面图片
+router.post('/upload-cover', verify(), koaMulter(upload.single('cover')), async (ctx, next) => {
+  try {
+    const file = ctx.req.file
+    if (!file) {
+      ctx.body = {
+        code: 400,
+        data: null,
+        msg: '请选择文件'
+      }
+      return
+    }
+    const imageUrl = `http://localhost:3000/${file.filename}`
+    ctx.body = {
+      code: 200,
+      data: { url: imageUrl, filename: file.filename },
+      msg: '上传成功'
+    }
+  } catch (error) {
+    ctx.body = {
+      code: 500,
+      data: error,
+      msg: '服务器异常'
+    }
+  }
+})
+
+// 上传编辑器内图片
+router.post('/upload-image', verify(), koaMulter(upload.single('image')), async (ctx, next) => {
+  try {
+    const file = ctx.req.file
+    if (!file) {
+      ctx.body = {
+        code: 400,
+        data: null,
+        msg: '请选择文件'
+      }
+      return
+    }
+    const imageUrl = `http://localhost:3000/${file.filename}`
+    ctx.body = {
+      code: 200,
+      data: { url: imageUrl, filename: file.filename },
+      msg: '上传成功'
+    }
+  } catch (error) {
+    ctx.body = {
+      code: 500,
+      data: error,
+      msg: '服务器异常'
+    }
+  }
+})
+
+// 静态文件服务
+router.get('/uploads/:filename', async (ctx, next) => {
+  const { filename } = ctx.params
+  const filePath = path.join(uploadDir, filename)
+  try {
+    if (fs.existsSync(filePath)) {
+      ctx.type = path.extname(filename)
+      ctx.body = fs.createReadStream(filePath)
+    } else {
+      ctx.status = 404
+      ctx.body = { code: 404, msg: '文件不存在' }
+    }
+  } catch (error) {
+    ctx.status = 500
+    ctx.body = { code: 500, msg: '服务器异常' }
+  }
+})
 
 module.exports = {
   articleRouter: router

@@ -65,6 +65,7 @@ const login = async () => {
 
   // 是不是要记住我
   if (remember.value) {
+    console.log(res);
     localStorage.setItem('token', res.token)
   } else {
     localStorage.removeItem('token')

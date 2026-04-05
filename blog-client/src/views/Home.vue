@@ -22,7 +22,7 @@
             <div class="article-list">
               <div class="article-item" v-for="item in newsArticleList" :key="item.id">
                 <div class="article-pic">
-                  <img :src="item.article_cover_pic" alt="">
+                  <img :src="item.cover_pic" alt="">
                 </div>
                 <div class="article-desc">
                   <div class="name">{{ item.title }}</div>
