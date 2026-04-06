@@ -125,6 +125,13 @@ MYSQL_USERNAME=root
 MYSQL_PASSWORD=你的MySQL密码
 MYSQL_DATABASE=blog
 PORT=3000
+
+# 公网访问根地址（无尾斜杠），上传图片返回的 URL 会用它；部署到远程务必填写
+# 示例：https://blog.example.com
+PUBLIC_ORIGIN=
+
+# 置于 Nginx 反代后建议：TRUST_PROXY=1（与 index.js 中 app.proxy 配合，识别 HTTPS）
+TRUST_PROXY=1
 ```
 
 ### 4. 启动后端服务
@@ -213,6 +220,42 @@ blog-master/
 2. 后端：`cd blog-server`，使用 PM2 等方式常驻 `node index.js`。  
 3. Nginx：将前端静态站点与 `/api` 反向代理到 Node 服务（与开发环境 `baseURL` 约定一致）。  
 4. 生产环境请修改 JWT 密钥、数据库密码等敏感配置，勿提交 `.env`。
+
+### 图片上传后无法显示（远程部署常见问题）
+
+- **原因一：接口写死的本地地址**  
+  旧版封面/正文上传曾返回 `http://localhost:3000/...`，写入数据库后浏览器仍会请求你本机。现已在服务端用 `PUBLIC_ORIGIN` 与请求头动态拼接；**请在服务器 `.env` 中设置 `PUBLIC_ORIGIN=https://你的域名`**（与浏览器访问站点一致，不要尾斜杠）。
+
+- **原因二：Nginx 只转发了 `/api`，图片路径没有到 Node**  
+  上传文件由 Koa 挂在站点根路径同级资源（如 `/cover-xxx.jpg`、`/avatars/xxx.jpg`）。若 Nginx 只配置了 `location /api/`，这些 URL 不会进 Node，会 404。请在 Nginx 中增加对上传目录的转发（路径按你实际 `uploads` 生成规则调整），例如：
+
+```nginx
+# API
+location /api/ {
+    proxy_pass http://127.0.0.1:3000/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+
+# 头像目录
+location /avatars/ {
+    proxy_pass http://127.0.0.1:3000/avatars/;
+    proxy_set_header Host $host;
+}
+
+# 封面 / 编辑器图片（multer 默认文件名多为 cover-、image- 前缀）
+location ~* ^/(cover-|image-)[^/]+\.(jpe?g|png|gif|webp)$ {
+    proxy_pass http://127.0.0.1:3000;
+    proxy_set_header Host $host;
+}
+```
+
+- **原因三：反代未传 HTTPS**  
+  若未设置 `X-Forwarded-Proto`，Node 可能生成 `http://` 链接。请配置上述头并设置 `TRUST_PROXY=1`，或直接依赖 **`PUBLIC_ORIGIN` 为 https**。
+
+前端会对「仍指向 localhost 的旧数据」在生产环境自动换成当前页面域名（`mediaUrl.js`），但**根本仍依赖 Nginx 能把对应路径转到 Node**。
 
 如需单独文档，可在仓库根目录自行补充 `deploy.md`（例如 PM2、HTTPS 等细则）。
 

@@ -15,7 +15,7 @@
       <el-card class="article-list" v-if="articles.length > 0">
         <div v-for="article in articles" :key="article.id" class="article-item">
           <div class="article-cover" v-if="article.cover_pic">
-            <img :src="article.cover_pic" alt="文章封面">
+            <img :src="resolveMediaUrl(article.cover_pic)" alt="文章封面">
           </div>
           <div class="article-content">
             <h3 class="article-title">{{ article.title }}</h3>
@@ -67,6 +67,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { getMyArticles, deleteArticle as deleteArticleApi } from '@/api/index.js'
 import { formateDate } from '@/utils/formateDate.js'
+import { resolveMediaUrl } from '@/utils/mediaUrl.js'
 
 const router = useRouter()
 const articles = ref([])

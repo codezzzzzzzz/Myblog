@@ -11,6 +11,7 @@ const {
   updateUserAvatar
 } = require('../controllers/index.js')
 const { sign, verify } = require('../utils/jwt.js')
+const { getPublicOrigin } = require('../utils/publicOrigin.js')
 
 router.prefix('/user')
 
@@ -207,8 +208,7 @@ router.post('/upload-avatar', verify(), koaMulter(avatarUpload.single('avatar'))
     const oldAvatar = rows[0] && rows[0].avatar
     tryRemoveOldAvatarFile(oldAvatar)
 
-    const baseUrl = `${ctx.protocol}://${ctx.host}`
-    const imageUrl = `${baseUrl}/avatars/${file.filename}`
+    const imageUrl = `${getPublicOrigin(ctx)}/avatars/${file.filename}`
     await updateUserAvatar(ctx.user_id, imageUrl)
 
     const fresh = await getUserProfileById(ctx.user_id)

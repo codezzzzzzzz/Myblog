@@ -5,7 +5,7 @@
         <div class="home-content__left">
           <div class="user-info">
             <div class="avatar">
-              <img src="@/assets/avatar.png" alt="">
+              <img :src="DEFAULT_AVATAR_URL" alt="">
             </div>
             <div class="user-desc">
               <p class="name"> 阿炜 </p>
@@ -22,7 +22,7 @@
             <div class="article-list">
               <div class="article-item" v-for="item in newsArticleList" :key="item.id">
                 <div class="article-pic">
-                  <img :src="item.cover_pic" alt="">
+                  <img :src="resolveMediaUrl(item.cover_pic)" alt="">
                 </div>
                 <div class="article-desc">
                   <div class="name">{{ item.title }}</div>
@@ -55,7 +55,7 @@ import Callme from '@/components/Callme.vue';
 import { getNewsArticleList } from '@/api/index.js';
 import { onMounted, ref } from 'vue';
 import { formateDate } from '@/utils/formateDate.js';
-import { DEFAULT_AVATAR_URL } from '@/utils/mediaUrl.js';
+import { DEFAULT_AVATAR_URL, resolveMediaUrl } from '@/utils/mediaUrl.js';
 
 const newsArticleList = ref([])
 
