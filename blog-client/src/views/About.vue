@@ -5,7 +5,7 @@
         <div class="about-content__left">
           <div class="user-info">
             <div class="avatar">
-              <img src="@/assets/avatar.png" alt="">
+              <img :src="DEFAULT_AVATAR_URL" alt="">
             </div>
             <div class="user-desc">
               <p class="name">阿炜</p>
@@ -37,6 +37,7 @@
 import layoutLeftRight from '@/components/layoutLeftRight.vue'
 import Category from '@/components/Category.vue'
 import Callme from '@/components/Callme.vue'
+import { DEFAULT_AVATAR_URL } from '@/utils/mediaUrl.js'
 </script>
 
 <style lang="less" scoped>

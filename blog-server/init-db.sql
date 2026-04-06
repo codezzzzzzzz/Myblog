@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(100) NOT NULL,
     nickname VARCHAR(50),
     avatar VARCHAR(255),
+    bio VARCHAR(500) NOT NULL DEFAULT '' COMMENT '个人签名',
     create_time BIGINT
 );
 
@@ -63,12 +64,16 @@ INSERT INTO
         username,
         password,
         nickname,
+        avatar,
+        bio,
         create_time
     )
 VALUES (
         'admin',
         'e10adc3949ba59abbe56e057f20f883e',
         '管理员',
+        '',
+        '',
         UNIX_TIMESTAMP() * 1000
     );
 

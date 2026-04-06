@@ -55,6 +55,7 @@ import Callme from '@/components/Callme.vue';
 import { getNewsArticleList } from '@/api/index.js';
 import { onMounted, ref } from 'vue';
 import { formateDate } from '@/utils/formateDate.js';
+import { DEFAULT_AVATAR_URL } from '@/utils/mediaUrl.js';
 
 const newsArticleList = ref([])
 

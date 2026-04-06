@@ -8,7 +8,7 @@
         <router-link to="/home"> 首页 </router-link>
         <router-link to="/article"> 文章 </router-link>
         <router-link to="/my-articles"> 我的文章 </router-link>
-        <router-link to="/conclude"> 归档 </router-link>
+        <router-link to="/profile"> 我的信息 </router-link>
         <router-link to="/about"> 关于 </router-link>
       </div>
     </div>
@@ -29,15 +29,16 @@
 <script setup>
 import { Search } from '@element-plus/icons-vue'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { isLogin } from '@/utils/isLogin.js'
-import baseAvatar from '@/assets/vue.svg'
 
+const router = useRouter()
 const inputSearch = ref('')
-const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null')
 
 const logout = () => {
   localStorage.removeItem('token')
   sessionStorage.removeItem('token')
+  localStorage.removeItem('userInfo')
   router.push('/login')
 }
 </script>
