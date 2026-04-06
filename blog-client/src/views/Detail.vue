@@ -5,9 +5,9 @@
         <div class="title">{{ articleDetail.title }}</div>
         <div class="user">
           <div class="avatar">
-            <img src="@/assets/avatar.png" alt="">
+            <img :src="authorAvatarSrc" alt="">
           </div>
-          <div class="atuhor after">作者：蜗牛</div>
+          <div class="atuhor after">作者：{{ authorName }}</div>
           <div class="time after">发布于：{{ formateDate(articleDetail.create_time) }}</div>
           <div class="read">阅读：{{ articleDetail.read || 0 }}</div>
         </div>
@@ -57,11 +57,11 @@
           <h3>关于作者</h3>
           <div class="author-info">
             <div class="author-avatar">
-              <img src="@/assets/avatar.png" alt="">
+              <img :src="authorAvatarSrc" alt="">
             </div>
             <div class="author-desc">
-              <p class="author-name">阿炜</p>
-              <p class="author-bio">全栈开发工程师，专注于Web开发和人工智能技术</p>
+              <p class="author-name">{{ authorName }}</p>
+              <p class="author-bio">{{ authorBioDisplay }}</p>
             </div>
           </div>
         </div>
@@ -78,7 +78,7 @@
         <ul>
           <li class="list-item" v-for="item in commentList" :key="item.comment_id">
             <div class="avatar">
-              <img :src="item.user_avatar ? item.user_avatar : baseImg" alt="">
+              <img :src="commentAvatar(item.user_avatar)" alt="">
             </div>
             <div class="comment-content">
               <div class="comment-user">{{ item.user_nickname }}</div>
@@ -102,7 +102,7 @@ import { getArticleDetailById, addLikeApi, addCommentApi, getCommentList } from 
 import { formateDate } from '@/utils/formateDate.js'
 import { randomColor } from '@/utils/randomColor.js'
 import { isLogin } from '@/utils/isLogin.js'
-import baseImg from '@/assets/vue.svg'
+import { resolveMediaUrl, DEFAULT_AVATAR_URL } from '@/utils/mediaUrl.js'
 
 const route = useRoute()
 // console.log(route.query.id);
@@ -111,6 +111,24 @@ const comment = ref('')
 const commentList = ref([])
 
 const renderedContent = computed(() => renderArticleBody(articleDetail.value?.content))
+
+const authorName = computed(() => articleDetail.value?.author_nickname || '匿名用户')
+
+const authorAvatarSrc = computed(() => {
+  const u = resolveMediaUrl(articleDetail.value?.author_avatar)
+  return u || DEFAULT_AVATAR_URL
+})
+
+const authorBioDisplay = computed(() => {
+  const b = articleDetail.value?.author_bio
+  if (b != null && String(b).trim() !== '') return String(b).trim()
+  return '暂无简介'
+})
+
+const commentAvatar = (userAvatar) => {
+  const u = resolveMediaUrl(userAvatar)
+  return u || DEFAULT_AVATAR_URL
+}
 
 onMounted(async () => {
   const res = await getArticleDetailById(route.query.id)
@@ -381,6 +399,8 @@ const publish = async () => {
               font-size: 12px;
               color: #666;
               line-height: 1.4;
+              white-space: pre-wrap;
+              word-break: break-word;
             }
           }
         }

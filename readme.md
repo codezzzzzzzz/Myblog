@@ -2,6 +2,8 @@
 
 一个基于 Vue3 + Koa2 + MySQL 的全栈个人博客系统
 
+**当前版本：v.3.0**
+
 ---
 
 ## 📸 项目截图
@@ -14,6 +16,7 @@
 ![我的文章编辑](./screenshots/article.png)
 ![登入](./screenshots/login.png)
 ![文章列表](./screenshots/artcles.png)
+![我](./screenshots/me.png)
 
 ---
 
@@ -28,7 +31,7 @@
 - **样式预处理**: Less
 - **自动导入**: unplugin-auto-import + unplugin-vue-components
 - **Markdown**: marked + DOMPurify（编辑与详情页安全渲染）
-- **图片裁剪**: Cropper.js 2.x（封面与正文插图）
+- **图片裁剪**: Cropper.js 2.x（封面、正文插图与头像）
 
 ### 后端
 - **运行环境**: Node.js
@@ -57,7 +60,7 @@
 - ✏️ Markdown 分栏编辑、实时预览
 - 🖼️ 封面与正文图片上传与裁剪
 - 🏷️ 文章分类与标签管理
-- ⏱️ 文章归档（按时间线）
+- 👤 我的信息（头像本地上传、昵称、个人签名）
 - 🔥 最新文章推荐
 - 📂 我的文章（创建、编辑、删除）
 
@@ -65,7 +68,7 @@
 - 👤 用户注册 / 登录
 - 🔐 JWT Token 身份认证（请求头 `Authorization` 携带令牌）
 - 🔒 MD5 密码加密
-- 🎨 个人信息展示
+- 🎨 文章详情展示作者头像与签名
 
 ### 互动功能
 - ❤️ 文章点赞
@@ -103,7 +106,15 @@ mysql -u root -p < blog-server/init-db.sql
 
 或使用 Navicat / DBeaver 等工具执行 `blog-server/init-db.sql` 文件。
 
-2. 配置后端环境变量
+2. **若数据库是旧版本（无 `users.bio` 字段）**，请先执行升级脚本：
+
+```bash
+mysql -u root -p blog < blog-server/migrations/001-add-user-bio.sql
+```
+
+全新安装仅执行 `init-db.sql` 即可，无需再跑上述迁移。
+
+3. 配置后端环境变量
 
 在 `blog-server` 目录下创建 `.env` 文件：
 
@@ -116,7 +127,7 @@ MYSQL_DATABASE=blog
 PORT=3000
 ```
 
-### 3. 启动后端服务
+### 4. 启动后端服务
 
 ```bash
 cd blog-server
@@ -126,7 +137,7 @@ npm run dev
 
 后端服务将在 `http://localhost:3000` 启动。
 
-### 4. 启动前端服务
+### 5. 启动前端服务
 
 ```bash
 cd blog-client
@@ -137,7 +148,7 @@ npm run dev
 前端开发服务默认 `http://localhost:8083`（见 `blog-client/vite.config.js`，端口可改）。  
 生产构建后 Axios `baseURL` 为 `/api`，需由 Nginx 反向代理到后端。
 
-### 5. 测试账号
+### 6. 测试账号
 
 - 用户名: `admin`
 - 密码: `123456`
@@ -161,6 +172,7 @@ blog-master/
 │   │   ├── views/           # 页面组件
 │   │   ├── App.vue
 │   │   └── main.js
+│   ├── public/              # 公共静态资源（如默认头像 image.png）
 │   ├── index.html
 │   ├── package.json
 │   └── vite.config.js
@@ -168,6 +180,7 @@ blog-master/
 ├── blog-server/              # 后端项目
 │   ├── config/              # 数据库配置
 │   ├── controllers/         # 业务逻辑层（index.js）
+│   ├── migrations/          # 已有库增量 SQL（如用户表 bio）
 │   ├── router/              # 路由定义
 │   ├── utils/               # 工具函数（JWT、XSS 等）
 │   ├── uploads/             # 用户上传文件
@@ -185,7 +198,7 @@ blog-master/
 
 | 表名 | 说明 |
 |------|------|
-| users | 用户表 |
+| users | 用户表（含昵称、头像、个人签名 `bio` 等） |
 | article | 文章表 |
 | tags | 标签表 |
 | article_tags | 文章-标签关联表 |
@@ -226,6 +239,12 @@ blog-master/
 - 数据库连接池管理，提升性能
 - 完善的错误处理机制
 - 文章编辑采用 Markdown + 图片裁剪上传；详情页 marked + DOMPurify 渲染
+
+**版本记录**
+
+- **v.1.0** 基础博客功能（文章列表、详情、登录注册、评论与点赞等）。
+- **v.2.0** 新增文章编辑能力：Markdown 分栏编辑与预览、封面与正文插图上传及 Cropper 裁剪。
+- **v.3.0** 以「我的信息」替代原「归档」页：支持昵称、个人签名（`users.bio`）、头像本地上传与 1:1 裁剪；文章详情与评论等场景展示作者/用户头像与签名；无头像时使用 `blog-client/public/image.png` 作为默认图；归档相关接口与页面已移除。旧库请执行 `blog-server/migrations/001-add-user-bio.sql` 增加 `bio` 字段。
 
 ---
 

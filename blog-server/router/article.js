@@ -11,7 +11,6 @@ const {
   getAllArticleCount,
   oneArticleTags,
   getArticleDetailById,
-  getArchiveList,
   addLike,
   addComment,
   getCommentList,
@@ -149,24 +148,6 @@ router.get('/getAllArticleList', async (ctx, next) => {
     }
   }
 
-})
-
-// 归档列表（用于归档页按年月分组）
-router.get('/getArchiveList', async (ctx, next) => {
-  try {
-    const res = await getArchiveList()
-    ctx.body = {
-      code: 200,
-      data: res || [],
-      msg: '查询成功'
-    }
-  } catch (error) {
-    ctx.body = {
-      code: 500,
-      data: error,
-      msg: '服务器异常'
-    }
-  }
 })
 
 // 根据id查询文章

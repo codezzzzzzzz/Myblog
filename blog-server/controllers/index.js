@@ -81,10 +81,22 @@ const oneArticleTags = (id) => {
 
   return allServices.query(_sql)
 }
-// 根据id获取文章
+// 根据 id 获取文章（含作者昵称、头像、签名）
 const getArticleDetailById = (id) => {
-  let _sql = `SELECT * FROM article WHERE id=${id};`
-  return allServices.query(_sql)
+  const nid = Number(id)
+  if (!Number.isInteger(nid) || nid < 1) {
+    return Promise.resolve([])
+  }
+  const _sql = `
+    SELECT
+      a.*,
+      u.nickname AS author_nickname,
+      u.avatar AS author_avatar,
+      u.bio AS author_bio
+    FROM article a
+    LEFT JOIN users u ON a.user_id = u.id
+    WHERE a.id = ?`
+  return allServices.query(_sql, [nid])
 }
 
 // 登录
@@ -100,14 +112,23 @@ const userRegister = async (username, password, nickname) => {
   if (exist.length) return Promise.reject(new Error('用户名已存在'))
   const create_time = Date.now()
   const displayName = nickname && nickname.trim() ? nickname.trim() : username
-  const insertSql = 'INSERT INTO users (username, password, nickname, avatar, create_time) VALUES (?, ?, ?, ?, ?)'
-  return allServices.query(insertSql, [username, password, displayName, '', create_time])
+  const insertSql = 'INSERT INTO users (username, password, nickname, avatar, bio, create_time) VALUES (?, ?, ?, ?, ?, ?)'
+  return allServices.query(insertSql, [username, password, displayName, '', '', create_time])
 }
 
-// 归档：返回所有文章的 id、title、create_time
-const getArchiveList = () => {
-  const _sql = `SELECT id, title, create_time FROM article ORDER BY create_time DESC, id DESC;`
-  return allServices.query(_sql)
+const getUserProfileById = (user_id) => {
+  const _sql = 'SELECT id, username, nickname, avatar, bio, create_time FROM users WHERE id = ?'
+  return allServices.query(_sql, [user_id])
+}
+
+const updateUserProfile = (user_id, nickname, bio) => {
+  const _sql = 'UPDATE users SET nickname = ?, bio = ? WHERE id = ?'
+  return allServices.query(_sql, [nickname, bio, user_id])
+}
+
+const updateUserAvatar = (user_id, avatarUrl) => {
+  const _sql = 'UPDATE users SET avatar = ? WHERE id = ?'
+  return allServices.query(_sql, [avatarUrl, user_id])
 }
 
 // 点赞
@@ -209,7 +230,9 @@ module.exports = {
   getArticleDetailById,
   userLogin,
   userRegister,
-  getArchiveList,
+  getUserProfileById,
+  updateUserProfile,
+  updateUserAvatar,
   addLike,
   addComment,
   getCommentList,

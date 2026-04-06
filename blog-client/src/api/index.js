@@ -38,9 +38,17 @@ export const userRegister = async (params) => {
   return await axios.post('/user/register', params, { timeout: 15000 })
 }
 
-// 归档列表（全部文章 id、title、create_time）
-export const getArchiveList = async () => {
-  return await axios.get('/article/getArchiveList')
+// 当前用户资料（需登录）
+export const getUserProfile = async () => {
+  return await axios.get('/user/profile')
+}
+
+export const updateUserProfile = async (params) => {
+  return await axios.put('/user/profile', params)
+}
+
+export const uploadUserAvatar = async (formData) => {
+  return await axios.post('/user/upload-avatar', formData)
 }
 // 点赞
 export const addLikeApi = async (params) => {

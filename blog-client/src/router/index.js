@@ -26,9 +26,10 @@ const routes = [
     component: () => import('@/views/Login.vue')
   },
   {
-    path: '/conclude',
-    name: 'conclude',
-    component: () => import('@/views/Conclude.vue')
+    path: '/profile',
+    name: 'profile',
+    component: () => import('@/views/Profile.vue'),
+    meta: { requiresAuth: true }
   },
   {
     path: '/about',

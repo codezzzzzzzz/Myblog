@@ -130,6 +130,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Plus, Picture } from '@element-plus/icons-vue'
 import Cropper from 'cropperjs'
+import { CROPPER_DEFAULT_TEMPLATE, cropperTemplateWithAspectRatio } from '@/utils/cropperV2Template.js'
 import { renderArticleBody } from '@/utils/markdown.js'
 import {
   getArticleDetailById,
@@ -164,35 +165,8 @@ const tags = ref([])
 /** 与封面预览区域比例一致：200×120 */
 const COVER_CROP_RATIO = 200 / 120
 
-/**
- * 与 cropperjs@2.1.0 包内 DEFAULT_TEMPLATE 一致。
- * Vite 对 cropperjs 做依赖预构建时不会保留该命名导出，故内联在此。
- */
-const CROPPER_DEFAULT_TEMPLATE =
-  '<cropper-canvas background>' +
-  '<cropper-image rotatable scalable skewable translatable></cropper-image>' +
-  '<cropper-shade hidden></cropper-shade>' +
-  '<cropper-handle action="select" plain></cropper-handle>' +
-  '<cropper-selection initial-coverage="0.5" movable resizable>' +
-  '<cropper-grid role="grid" bordered covered></cropper-grid>' +
-  '<cropper-crosshair centered></cropper-crosshair>' +
-  '<cropper-handle action="move" theme-color="rgba(255, 255, 255, 0.35)"></cropper-handle>' +
-  '<cropper-handle action="n-resize"></cropper-handle>' +
-  '<cropper-handle action="e-resize"></cropper-handle>' +
-  '<cropper-handle action="s-resize"></cropper-handle>' +
-  '<cropper-handle action="w-resize"></cropper-handle>' +
-  '<cropper-handle action="ne-resize"></cropper-handle>' +
-  '<cropper-handle action="nw-resize"></cropper-handle>' +
-  '<cropper-handle action="se-resize"></cropper-handle>' +
-  '<cropper-handle action="sw-resize"></cropper-handle>' +
-  '</cropper-selection>' +
-  '</cropper-canvas>'
-
-/** v2：在默认模板上为封面锁定选区宽高比 */
-const COVER_CROP_TEMPLATE = CROPPER_DEFAULT_TEMPLATE.replace(
-  '<cropper-selection initial-coverage="0.5" movable resizable>',
-  `<cropper-selection initial-coverage="0.5" movable resizable aspect-ratio="${COVER_CROP_RATIO}">`
-)
+/** v2：封面裁剪模板（与预览区比例一致） */
+const COVER_CROP_TEMPLATE = cropperTemplateWithAspectRatio(COVER_CROP_RATIO)
 
 const cropDialogVisible = ref(false)
 const cropImageUrl = ref('')
