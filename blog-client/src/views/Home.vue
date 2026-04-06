@@ -22,7 +22,7 @@
             <div class="article-list">
               <div class="article-item" v-for="item in newsArticleList" :key="item.id">
                 <div class="article-pic">
-                  <img :src="item.article_cover_pic" alt="">
+                  <img :src="item.cover_pic" alt="">
                 </div>
                 <div class="article-desc">
                   <div class="name">{{ item.title }}</div>
@@ -84,7 +84,10 @@ onMounted(async () => {
         margin-right: 16px;
 
         img {
+          display: block;
+          width: 100%;
           height: 100%;
+          object-fit: cover;
         }
       }
 
@@ -146,8 +149,10 @@ onMounted(async () => {
             overflow: hidden;
 
             img {
-              height: 100%;
+              display: block;
               width: 100%;
+              height: 100%;
+              object-fit: cover;
             }
           }
 

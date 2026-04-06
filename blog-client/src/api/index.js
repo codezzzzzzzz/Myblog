@@ -48,6 +48,36 @@ export const addLikeApi = async (params) => {
 }
 
 // 评论
+
+// 获取我的文章列表
+export const getMyArticles = async () => {
+  return await axios.get('/article/my-articles')
+}
+
+// 创建文章
+export const createArticle = async (params) => {
+  return await axios.post('/article/create', params)
+}
+
+// 更新文章
+export const updateArticle = async (params) => {
+  return await axios.put('/article/update', params)
+}
+
+// 删除文章
+export const deleteArticle = async (id) => {
+  return await axios.delete('/article/delete', { data: { id } })
+}
+
+// 上传封面图片
+export const uploadCover = async (formData) => {
+  return await axios.post('/article/upload-cover', formData)
+}
+
+// 上传编辑器内图片
+export const uploadImage = async (formData) => {
+  return await axios.post('/article/upload-image', formData)
+}
 export const addCommentApi = async (params) => {
   return await axios.post('/article/addComment', params)
 }

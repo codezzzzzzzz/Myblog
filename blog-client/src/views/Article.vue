@@ -4,9 +4,16 @@
     <LayoutLeftRight>
       <template v-slot:left>
         <div class="arcitle-card" @click="goDetail(item.id)" v-for="item in articleList" :key="item.id">
-          <div class="name">{{ item.title }}</div>
-          <div class="desc">
-            {{ item.article_desc }}
+          <div class="card-body">
+            <div v-if="item.cover_pic" class="cover-thumb">
+              <img :src="item.cover_pic" alt="" loading="lazy" />
+            </div>
+            <div class="card-text">
+              <div class="name">{{ item.title }}</div>
+              <div class="desc">
+                {{ item.article_desc }}
+              </div>
+            </div>
           </div>
           <div class="control">
             <div class="control-left">
@@ -28,6 +35,7 @@
                 v-if="item.tag_names"
                 class="tag" 
                 v-for="tag in item.tag_names.split(', ')"  
+                :key="tag"
                 :style="{ background: randomColor(150, 250), color: randomColor(0, 100) }"
               >
                 {{tag}}
@@ -136,6 +144,35 @@ const goDetail = (id) => {
       box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.2), 0px 2px 4px -2px rgba(0, 0, 0, 0.2);
     }
 
+    .card-body {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+
+    .cover-thumb {
+      flex-shrink: 0;
+      width: 200px;
+      height: 120px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #f3f4f6;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        pointer-events: none;
+      }
+    }
+
+    .card-text {
+      flex: 1;
+      min-width: 0;
+    }
+
     .name {
       font-weight: 700;
       font-size: 30px;
@@ -154,7 +191,6 @@ const goDetail = (id) => {
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
-      margin-bottom: 24px;
     }
 
     .control {

@@ -1,39 +1,73 @@
 <template>
   <div class="article_detail">
-    <div class="detail">
-      <div class="title">{{ articleDetail.title }}</div>
-      <div class="user">
-        <div class="avatar">
-          <img src="@/assets/avatar.png" alt="">
+    <div class="detail-container">
+      <div class="detail">
+        <div class="title">{{ articleDetail.title }}</div>
+        <div class="user">
+          <div class="avatar">
+            <img src="@/assets/avatar.png" alt="">
+          </div>
+          <div class="atuhor after">作者：蜗牛</div>
+          <div class="time after">发布于：{{ formateDate(articleDetail.create_time) }}</div>
+          <div class="read">阅读：{{ articleDetail.read || 0 }}</div>
         </div>
-        <div class="atuhor after">作者：{{ articleDetail.author }}</div>
-        <div class="time after">发布于：{{ formateDate(articleDetail.create_time) }}</div>
-        <div class="read">阅读：{{ articleDetail.read }}</div>
-      </div>
-      <article>
-        <div class="banner">
-          <img :src="articleDetail.article_cover_pic" alt="">
-        </div>
-        <div class="article-content" v-html="articleDetail.content"></div>
-      </article>
+        <article>
+          <div class="banner" v-if="articleDetail.cover_pic">
+            <img :src="articleDetail.cover_pic" alt="">
+          </div>
+          <div class="article-content markdown-body" v-html="renderedContent"></div>
+        </article>
 
-      <div class="share">
-        <div class="left">
-          <div class="share-item" :style="{ background: randomColor(50, 150) }">
-            <i class="iconfont icon-weixin"></i>
+        <div class="share">
+          <div class="left">
+            <div class="share-item" :style="{ background: randomColor(50, 150) }">
+              <i class="iconfont icon-weixin"></i>
+            </div>
+            <div class="share-item" :style="{ background: randomColor(50, 150) }">
+              <i class="iconfont icon-QQ"></i>
+            </div>
           </div>
-          <div class="share-item" :style="{ background: randomColor(50, 150) }">
-            <i class="iconfont icon-QQ"></i>
+          <div class="right">
+            <el-button color="#8E6FF7" class="btn" @click="addLike">
+              <i class="iconfont icon-dianzan"></i>
+              点赞文章 ({{ articleDetail.like_num || 0 }})
+            </el-button>
           </div>
         </div>
-        <div class="right">
-          <el-button color="#8E6FF7" class="btn" @click="addLike">
-            <i class="iconfont icon-dianzan"></i>
-            点赞文章
-          </el-button>
+      </div>
+
+      <!-- 侧边栏 -->
+      <div class="sidebar">
+        <div class="sidebar-section">
+          <h3>文章信息</h3>
+          <div class="info-item">
+            <span class="label">发布时间：</span>
+            <span class="value">{{ formateDate(articleDetail.create_time) }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">点赞数：</span>
+            <span class="value">{{ articleDetail.like_num || 0 }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">评论数：</span>
+            <span class="value">{{ commentList.length }}</span>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <h3>关于作者</h3>
+          <div class="author-info">
+            <div class="author-avatar">
+              <img src="@/assets/avatar.png" alt="">
+            </div>
+            <div class="author-desc">
+              <p class="author-name">阿炜</p>
+              <p class="author-bio">全栈开发工程师，专注于Web开发和人工智能技术</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+
     <div class="comment">
       <div class="title">评论</div>
       <div class="comment-input">
@@ -47,11 +81,11 @@
               <img :src="item.user_avatar ? item.user_avatar : baseImg" alt="">
             </div>
             <div class="comment-content">
-              <div class="comment-user">{{item.user_nickname}}</div>
+              <div class="comment-user">{{ item.user_nickname }}</div>
               <div class="comment-text">
-                {{item.comment_content}}
+                {{ item.comment_content }}
               </div>
-              <div class="comment-time">{{formateDate(item.comment_created_at, true)}}</div>
+              <div class="comment-time">{{ formateDate(item.comment_created_at, true) }}</div>
             </div>
           </li>
         </ul>
@@ -61,7 +95,8 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
+import { renderArticleBody } from '@/utils/markdown.js'
 import { useRoute } from 'vue-router'
 import { getArticleDetailById, addLikeApi, addCommentApi, getCommentList } from '@/api/index.js'
 import { formateDate } from '@/utils/formateDate.js'
@@ -75,16 +110,18 @@ const articleDetail = ref({})
 const comment = ref('')
 const commentList = ref([])
 
+const renderedContent = computed(() => renderArticleBody(articleDetail.value?.content))
+
 onMounted(async () => {
   const res = await getArticleDetailById(route.query.id)
   articleDetail.value = res.data
-
-  // 加载评论
-  const commentRes = await getCommentList(route.query.id)
-  console.log(commentRes);
-  commentList.value = commentRes.data
+  loadComment(route.query.id)
 })
-
+// 加载评论
+const loadComment = async (article_id) => {
+  const commentRes = await getCommentList(article_id)
+  commentList.value = commentRes.data
+}
 const addLike = async () => {
   // 点赞, 向后端发送一个请求, 把文章的id传过去，用户的id也传过去
   // 登录问题
@@ -103,13 +140,13 @@ const addLike = async () => {
 }
 
 // 发表评论
-const publish = async() => {
+const publish = async () => {
   if (comment.value === '') {
     ElMessage({
       message: '评论内容不能为空',
       type: 'error',
     })
-    return  
+    return
   }
 
   if (isLogin()) {
@@ -123,13 +160,15 @@ const publish = async() => {
         type: 'success',
       })
       comment.value = ''
+      loadComment(route.query.id)
     } else {
       ElMessage({
         message: res.msg,
         type: 'error',
       })
+
     }
-    
+
   } else {
     ElMessage({
       message: '评论功能需要先登录哦',
@@ -142,145 +181,257 @@ const publish = async() => {
 <style lang="less" scoped>
 .article_detail {
   width: 100%;
-  background-color: #F9FAFB;
+  background: linear-gradient(180deg, #f3f4f6 0%, #f9fafb 32%, #f9fafb 100%);
   min-height: calc(100vh - 140px);
-  padding: 32px 0;
+  padding: 28px 0 48px;
   box-sizing: border-box;
 
-  .detail {
-    width: 60%;
+  .detail-container {
+    display: flex;
+    max-width: 1180px;
     margin: 0 auto;
-    background-color: #fff;
-    border-radius: 16px;
-    padding: 32px 24px;
-    box-sizing: border-box;
+    gap: 28px;
+    padding: 0 20px;
+    align-items: flex-start;
 
-    .title {
-      font-family: Roboto, Roboto;
-      font-weight: 700;
-      font-size: 30px;
-      color: #111827;
-      line-height: 36px;
-      margin-bottom: 16px;
-    }
+    .detail {
+      flex: 1;
+      min-width: 0;
+      background-color: #fff;
+      border-radius: 16px;
+      padding: 36px 40px 40px;
+      box-sizing: border-box;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
 
-    .user {
-      display: flex;
-      align-items: center;
-      font-weight: 400;
-      font-size: 14px;
-      color: #6B7280;
-      line-height: 20px;
-
-      .avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        overflow: hidden;
-        margin-right: 12px;
-
-        img {
-          width: 100%;
-        }
+      .title {
+        font-weight: 700;
+        font-size: clamp(1.5rem, 2.5vw, 1.875rem);
+        color: #111827;
+        line-height: 1.25;
+        margin-bottom: 18px;
+        letter-spacing: -0.02em;
       }
 
-      .after {
-        margin-right: 8px;
-        padding-right: 8px;
-        position: relative;
-
-        &::after {
-          content: '';
-          width: 1px;
-          height: 12px;
-          background-color: #6B7280;
-          position: absolute;
-          right: 0;
-          top: 50%;
-          transform: translateY(-50%);
-        }
-      }
-    }
-
-    article {
-      padding: 32px 0 56px 0;
-
-      .banner {
-        width: 100%;
-        height: 256px;
-        margin-bottom: 32px;
-        overflow: hidden;
-        border-radius: 16px;
-
-        img {
-          width: 100%;
-        }
-      }
-    }
-
-    .share {
-      width: 100%;
-      height: 68px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      .left {
+      .user {
         display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px 0;
+        font-weight: 400;
+        font-size: 14px;
+        color: #6b7280;
+        line-height: 20px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #f3f4f6;
 
-        .share-item {
-          margin-right: 16px;
-          width: 32px;
-          height: 32px;
+        .avatar {
+          width: 40px;
+          height: 40px;
           border-radius: 50%;
-          cursor: pointer;
-          // background-color: #6B7280;
-          text-align: center;
-          line-height: 32px;
+          overflow: hidden;
+          margin-right: 12px;
+          flex-shrink: 0;
 
-          .iconfont {
-            font-size: 20px;
-            color: #fff;
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+          }
+        }
+
+        .after {
+          margin-right: 8px;
+          padding-right: 8px;
+          position: relative;
+
+          &::after {
+            content: '';
+            width: 1px;
+            height: 12px;
+            background-color: #6B7280;
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
           }
         }
       }
 
-      .right {
-        .btn {
-          color: #fff;
+      article {
+        padding: 28px 0 48px;
+
+        .banner {
+          width: 100%;
+          height: ~"min(280px, 36vw)";
+          max-height: 320px;
+          margin-bottom: 28px;
+          overflow: hidden;
+          border-radius: 14px;
+          border: 1px solid #e5e7eb;
+          background: #f3f4f6;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+          }
+        }
+
+        .article-content {
+          max-width: 100%;
+          font-size: 17px;
+        }
+      }
+
+      .share {
+        width: 100%;
+        height: 68px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .left {
+          display: flex;
+
+          .share-item {
+            margin-right: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            text-align: center;
+            line-height: 32px;
+
+            .iconfont {
+              font-size: 20px;
+              color: #fff;
+            }
+          }
+        }
+
+        .right {
+          .btn {
+            color: #fff;
+          }
+        }
+      }
+    }
+
+    .sidebar {
+      width: 288px;
+      flex-shrink: 0;
+
+      .sidebar-section {
+        background-color: #fff;
+        border-radius: 14px;
+        padding: 22px;
+        margin-bottom: 16px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05);
+
+        h3 {
+          font-size: 15px;
+          font-weight: 600;
+          margin-bottom: 14px;
+          color: #111827;
+        }
+
+        .info-item {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 12px;
+          font-size: 14px;
+
+          .label {
+            color: #666;
+          }
+
+          .value {
+            color: #333;
+            font-weight: 500;
+          }
+        }
+
+        .author-info {
+          .author-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 12px;
+
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+          }
+
+          .author-desc {
+            .author-name {
+              font-weight: 600;
+              margin-bottom: 4px;
+              color: #333;
+            }
+
+            .author-bio {
+              font-size: 12px;
+              color: #666;
+              line-height: 1.4;
+            }
+          }
         }
       }
     }
   }
 
   .comment {
-    width: 60%;
-    margin: 0 auto;
-    margin-top: 48px;
+    width: ~"min(100% - 40px, 1180px)";
+    max-width: 1180px;
+    margin: 40px auto 0;
+    padding: 28px 24px 32px;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+    box-sizing: border-box;
 
     .title {
       font-weight: 700;
-      font-size: 24px;
+      font-size: 22px;
       color: #111827;
-      line-height: 32px;
-      margin-bottom: 24px;
+      line-height: 1.3;
+      margin-bottom: 20px;
     }
 
     .comment-input {
       width: 100%;
-      height: 114px;
-      border-radius: 16px;
-      border: 1px solid #E5E7EB;
+      height: 120px;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
       overflow: hidden;
-      margin-bottom: 15px;
+      margin-bottom: 14px;
+      transition: border-color 0.2s;
+
+      &:focus-within {
+        border-color: #c4b5fd;
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+      }
 
       textarea {
         border: none;
         width: 100%;
         height: 100%;
-        padding: 10px;
+        padding: 14px 16px;
         box-sizing: border-box;
         outline: none;
+        font-size: 14px;
+        line-height: 1.5;
+        resize: vertical;
+        min-height: 100px;
       }
     }
 
@@ -333,6 +484,19 @@ const publish = async() => {
             line-height: 16px;
           }
         }
+      }
+    }
+  }
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .article_detail {
+    .detail-container {
+      flex-direction: column;
+
+      .sidebar {
+        width: 100%;
       }
     }
   }
