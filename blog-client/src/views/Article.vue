@@ -6,7 +6,7 @@
         <div class="arcitle-card" @click="goDetail(item.id)" v-for="item in articleList" :key="item.id">
           <div class="card-body">
             <div v-if="item.cover_pic" class="cover-thumb">
-              <img :src="item.cover_pic" alt="" loading="lazy" />
+              <img :src="resolveMediaUrl(item.cover_pic)" alt="" loading="lazy" />
             </div>
             <div class="card-text">
               <div class="name">{{ item.title }}</div>
@@ -63,6 +63,7 @@ import { getAllArticleList } from '@/api/index.js'
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { formateDate } from '@/utils/formateDate.js'
+import { resolveMediaUrl } from '@/utils/mediaUrl.js'
 
 const articleList = ref([])
 const totalPage = ref(0)

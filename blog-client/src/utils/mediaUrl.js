@@ -6,9 +6,22 @@ export const DEFAULT_AVATAR_URL = `${import.meta.env.BASE_URL}image.png`
  */
 export function resolveMediaUrl(src) {
   if (src == null || src === '') return ''
-  const s = String(src).trim()
+  let s = String(src).trim()
   if (!s) return ''
-  if (/^https?:\/\//i.test(s)) return s
+  // 库里若仍存开发环境绝对地址，线上用当前站点域名替换，避免指向 localhost
+  if (/^https?:\/\//i.test(s)) {
+    try {
+      const u = new URL(s)
+      if (u.hostname === 'localhost' || u.hostname === '127.0.0.1') {
+        if (import.meta.env.DEV) return s
+        const origin = typeof window !== 'undefined' ? window.location.origin : ''
+        return `${origin}${u.pathname}${u.search}${u.hash}`
+      }
+    } catch {
+      /* 非法 URL 则继续走下方逻辑 */
+    }
+    return s
+  }
   const base = import.meta.env.DEV ? 'http://localhost:3000' : (typeof window !== 'undefined' ? window.location.origin : '')
   return `${base}/${s.replace(/^\//, '')}`
 }

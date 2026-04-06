@@ -23,6 +23,7 @@ const {
 } = require('../controllers/index.js')
 const { verify } = require('../utils/jwt.js')
 const { sanitizeComment } = require('../utils/xss.js')
+const { getPublicOrigin } = require('../utils/publicOrigin.js')
 
 // 确保uploads目录存在
 const uploadDir = path.join(__dirname, '../uploads')
@@ -374,7 +375,7 @@ router.post('/upload-cover', verify(), koaMulter(upload.single('cover')), async 
       }
       return
     }
-    const imageUrl = `http://localhost:3000/${file.filename}`
+    const imageUrl = `${getPublicOrigin(ctx)}/${file.filename}`
     ctx.body = {
       code: 200,
       data: { url: imageUrl, filename: file.filename },
@@ -401,7 +402,7 @@ router.post('/upload-image', verify(), koaMulter(upload.single('image')), async 
       }
       return
     }
-    const imageUrl = `http://localhost:3000/${file.filename}`
+    const imageUrl = `${getPublicOrigin(ctx)}/${file.filename}`
     ctx.body = {
       code: 200,
       data: { url: imageUrl, filename: file.filename },

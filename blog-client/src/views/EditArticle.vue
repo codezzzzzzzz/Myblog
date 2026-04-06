@@ -24,7 +24,7 @@
             </template>
             <template #default>
               <div v-if="form.cover_pic" class="cover-preview">
-                <img :src="form.cover_pic" alt="封面预览">
+                <img :src="resolveMediaUrl(form.cover_pic)" alt="封面预览">
                 <el-button type="danger" size="small" @click="removeCover">
                   删除
                 </el-button>
@@ -132,6 +132,7 @@ import { Plus, Picture } from '@element-plus/icons-vue'
 import Cropper from 'cropperjs'
 import { CROPPER_DEFAULT_TEMPLATE, cropperTemplateWithAspectRatio } from '@/utils/cropperV2Template.js'
 import { renderArticleBody } from '@/utils/markdown.js'
+import { resolveMediaUrl } from '@/utils/mediaUrl.js'
 import {
   getArticleDetailById,
   createArticle,

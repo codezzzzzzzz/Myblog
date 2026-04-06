@@ -12,8 +12,8 @@
           <div class="read">阅读：{{ articleDetail.read || 0 }}</div>
         </div>
         <article>
-          <div class="banner" v-if="articleDetail.cover_pic">
-            <img :src="articleDetail.cover_pic" alt="">
+          <div class="banner" v-if="coverBannerSrc">
+            <img :src="coverBannerSrc" alt="">
           </div>
           <div class="article-content markdown-body" v-html="renderedContent"></div>
         </article>
@@ -123,6 +123,11 @@ const authorBioDisplay = computed(() => {
   const b = articleDetail.value?.author_bio
   if (b != null && String(b).trim() !== '') return String(b).trim()
   return '暂无简介'
+})
+
+const coverBannerSrc = computed(() => {
+  const pic = articleDetail.value?.cover_pic
+  return pic ? resolveMediaUrl(pic) : ''
 })
 
 const commentAvatar = (userAvatar) => {

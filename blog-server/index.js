@@ -1,5 +1,9 @@
 const Koa = require('koa')
 const app = new Koa()
+// 置于 Nginx 等反代之后时，才能正确识别 https 与对外 Host（配合 X-Forwarded-*）
+if (process.env.TRUST_PROXY === '1' || process.env.NODE_ENV === 'production') {
+  app.proxy = true
+}
 const useRouters = require('./router/index.js')
 const cors = require('@koa/cors');
 const { bodyParser } = require("@koa/bodyparser");
