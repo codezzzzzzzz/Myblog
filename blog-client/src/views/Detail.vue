@@ -35,7 +35,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- 侧边栏 -->
       <div class="sidebar">
         <div class="sidebar-section">
@@ -60,14 +60,14 @@
               <img src="@/assets/avatar.png" alt="">
             </div>
             <div class="author-desc">
-              <p class="author-name">蜗牛</p>
+              <p class="author-name">阿炜</p>
               <p class="author-bio">全栈开发工程师，专注于Web开发和人工智能技术</p>
             </div>
           </div>
         </div>
       </div>
     </div>
-    
+
     <div class="comment">
       <div class="title">评论</div>
       <div class="comment-input">
@@ -81,11 +81,11 @@
               <img :src="item.user_avatar ? item.user_avatar : baseImg" alt="">
             </div>
             <div class="comment-content">
-              <div class="comment-user">{{item.user_nickname}}</div>
+              <div class="comment-user">{{ item.user_nickname }}</div>
               <div class="comment-text">
-                {{item.comment_content}}
+                {{ item.comment_content }}
               </div>
-              <div class="comment-time">{{formateDate(item.comment_created_at, true)}}</div>
+              <div class="comment-time">{{ formateDate(item.comment_created_at, true) }}</div>
             </div>
           </li>
         </ul>
@@ -115,13 +115,13 @@ const renderedContent = computed(() => renderArticleBody(articleDetail.value?.co
 onMounted(async () => {
   const res = await getArticleDetailById(route.query.id)
   articleDetail.value = res.data
-
-  // 加载评论
-  const commentRes = await getCommentList(route.query.id)
-  console.log(commentRes);
-  commentList.value = commentRes.data
+  loadComment(route.query.id)
 })
-
+// 加载评论
+const loadComment = async (article_id) => {
+  const commentRes = await getCommentList(article_id)
+  commentList.value = commentRes.data
+}
 const addLike = async () => {
   // 点赞, 向后端发送一个请求, 把文章的id传过去，用户的id也传过去
   // 登录问题
@@ -140,13 +140,13 @@ const addLike = async () => {
 }
 
 // 发表评论
-const publish = async() => {
+const publish = async () => {
   if (comment.value === '') {
     ElMessage({
       message: '评论内容不能为空',
       type: 'error',
     })
-    return  
+    return
   }
 
   if (isLogin()) {
@@ -160,13 +160,15 @@ const publish = async() => {
         type: 'success',
       })
       comment.value = ''
+      loadComment(route.query.id)
     } else {
       ElMessage({
         message: res.msg,
         type: 'error',
       })
+
     }
-    
+
   } else {
     ElMessage({
       message: '评论功能需要先登录哦',
@@ -317,7 +319,7 @@ const publish = async() => {
         }
       }
     }
-    
+
     .sidebar {
       width: 288px;
       flex-shrink: 0;
@@ -336,23 +338,23 @@ const publish = async() => {
           margin-bottom: 14px;
           color: #111827;
         }
-        
+
         .info-item {
           display: flex;
           justify-content: space-between;
           margin-bottom: 12px;
           font-size: 14px;
-          
+
           .label {
             color: #666;
           }
-          
+
           .value {
             color: #333;
             font-weight: 500;
           }
         }
-        
+
         .author-info {
           .author-avatar {
             width: 60px;
@@ -360,21 +362,21 @@ const publish = async() => {
             border-radius: 50%;
             overflow: hidden;
             margin-bottom: 12px;
-            
+
             img {
               width: 100%;
               height: 100%;
               object-fit: cover;
             }
           }
-          
+
           .author-desc {
             .author-name {
               font-weight: 600;
               margin-bottom: 4px;
               color: #333;
             }
-            
+
             .author-bio {
               font-size: 12px;
               color: #666;
@@ -492,7 +494,7 @@ const publish = async() => {
   .article_detail {
     .detail-container {
       flex-direction: column;
-      
+
       .sidebar {
         width: 100%;
       }
