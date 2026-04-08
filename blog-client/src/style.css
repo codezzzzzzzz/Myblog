@@ -45,3 +45,126 @@ table {
 .mt32{
 	margin-top: 32px;
 }
+
+/* ========== 动漫像素风 · Anime Pixel UI ========== */
+:root {
+	--px-ink: #2d2541;
+	--px-ink-mid: #4a3d6b;
+	--font-pixel: "Jersey 25", ui-monospace, monospace;
+	--font-sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+	--font-display: "Jersey 25", "Noto Sans SC", sans-serif;
+
+	/* 马卡龙糖果色 */
+	--soft-bg: #6ec8ea;
+	--soft-bg-top: #ffb3d9;
+	--soft-surface: #fff5fb;
+	--soft-surface-raised: #ffffff;
+	--soft-read: #fffcef;
+	--soft-read-solid: #fff8e8;
+	--soft-highlight: #ffffff;
+	--soft-shadow: var(--px-ink);
+	--soft-text: #2d2541;
+	--soft-text-muted: #5c4d7a;
+	--soft-accent: #ff3b8d;
+	--soft-accent-2: #00c8ff;
+	--soft-accent-hover: #e02d7a;
+	--soft-accent-soft: rgba(255, 59, 141, 0.22);
+
+	--soft-radius: 0;
+	--soft-radius-sm: 0;
+	--soft-radius-pill: 4px;
+
+	/* 硬边「像素」阴影 */
+	--nu-raised: 4px 4px 0 var(--px-ink);
+	--nu-raised-sm: 3px 3px 0 var(--px-ink);
+	--nu-hover: 6px 6px 0 var(--px-ink);
+	--nu-pressed: 1px 1px 0 var(--px-ink);
+	--nu-inset: inset 0 0 0 3px var(--px-ink);
+	--nu-inset-sm: inset 0 0 0 2px var(--px-ink-mid);
+
+	--shadow-readable: 4px 4px 0 var(--px-ink);
+	--transition-soft: 100ms ease;
+	--el-color-primary: #ff3b8d;
+	--el-border-radius-base: 0;
+
+	--layout-page-pad: clamp(14px, 4vw, 104px);
+	--header-h: 72px;
+	--footer-h: 72px;
+	--bp-nav-drawer: 960px;
+	--bp-sidebar-stack: 1024px;
+	--safe-left: env(safe-area-inset-left, 0px);
+	--safe-right: env(safe-area-inset-right, 0px);
+}
+
+body {
+	font-family: var(--font-sans);
+	font-weight: 500;
+	background-color: var(--soft-bg);
+	background-image:
+		linear-gradient(
+			188deg,
+			#ffb8e8 0%,
+			#a8e8ff 38%,
+			#8be8c8 72%,
+			#d4b8ff 100%
+		);
+	color: var(--soft-text);
+	line-height: 1.55;
+	min-height: 100vh;
+	-webkit-font-smoothing: antialiased;
+	overflow-x: hidden;
+}
+
+/* 轻微像素格 + 扫描线（不挡点击） */
+body::after {
+	content: "";
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	z-index: 0;
+	opacity: 0.04;
+	background-size: 4px 4px;
+	background-image:
+		linear-gradient(to right, #000 1px, transparent 1px),
+		linear-gradient(to bottom, #000 1px, transparent 1px);
+}
+
+#app {
+	min-height: 100vh;
+	position: relative;
+	z-index: 1;
+	max-width: 100%;
+}
+
+h1, h2, h3, .page-title {
+	font-family: var(--font-display);
+	font-weight: 900;
+	letter-spacing: 0.04em;
+	text-shadow:
+		2px 2px 0 #ffb8e8,
+		-1px -1px 0 rgba(255, 255, 255, 0.9);
+}
+
+a[href]:not([class*="el-"]) {
+	cursor: pointer;
+	transition: color var(--transition-soft), opacity var(--transition-soft), transform var(--transition-soft);
+}
+
+:focus-visible {
+	outline: 3px solid var(--soft-accent);
+	outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+
+	body::after {
+		display: none;
+	}
+}

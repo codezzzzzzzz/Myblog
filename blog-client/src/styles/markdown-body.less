@@ -1,10 +1,12 @@
-/* 文章 Markdown / 富文本正文（与 class="markdown-body" 联用，全局样式） */
+/* 文章 Markdown / 富文本正文（动漫像素风） */
 
 .markdown-body {
   font-size: 16px;
   line-height: 1.75;
-  color: #374151;
+  color: var(--soft-text);
   word-wrap: break-word;
+  min-width: 0;
+  max-width: 100%;
 
   > *:first-child {
     margin-top: 0 !important;
@@ -21,22 +23,24 @@
   h5,
   h6 {
     margin: 1.4em 0 0.6em;
-    font-weight: 700;
-    color: #111827;
+    font-weight: 900;
+    font-family: var(--font-display);
+    color: var(--px-ink);
     line-height: 1.35;
-    letter-spacing: -0.02em;
+    letter-spacing: 0.03em;
+    text-shadow: 2px 2px 0 #ffb8e8;
   }
 
   h1 {
     font-size: 1.75rem;
     padding-bottom: 0.35em;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 4px solid var(--px-ink);
   }
 
   h2 {
     font-size: 1.45rem;
     padding-bottom: 0.25em;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 3px dashed var(--soft-accent);
   }
 
   h3 {
@@ -52,19 +56,20 @@
   }
 
   a {
-    color: #7c3aed;
+    color: var(--soft-accent);
     text-decoration: none;
-    border-bottom: 1px solid rgba(124, 58, 237, 0.35);
+    font-weight: 700;
+    border-bottom: 3px solid var(--soft-accent-2);
 
     &:hover {
-      color: #6d28d9;
-      border-bottom-color: #6d28d9;
+      color: var(--soft-accent-hover);
+      border-bottom-color: var(--soft-accent);
     }
   }
 
   strong {
-    font-weight: 600;
-    color: #111827;
+    font-weight: 900;
+    color: var(--px-ink);
   }
 
   ul,
@@ -82,7 +87,7 @@
   }
 
   ul {
-    list-style-type: disc;
+    list-style-type: square;
   }
 
   ol {
@@ -91,11 +96,12 @@
 
   blockquote {
     margin: 1em 0;
-    padding: 0.5em 0 0.5em 1em;
-    border-left: 4px solid #c4b5fd;
-    background: #f5f3ff;
-    color: #4b5563;
-    border-radius: 0 8px 8px 0;
+    padding: 0.65em 0 0.65em 1em;
+    border-left: 6px solid var(--soft-accent);
+    background: rgba(255, 59, 141, 0.08);
+    color: var(--soft-text-muted);
+    border-radius: 0;
+    box-shadow: 3px 3px 0 var(--px-ink);
 
     p {
       margin: 0.4em 0;
@@ -105,46 +111,202 @@
   hr {
     margin: 2em 0;
     border: none;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+    height: 4px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--px-ink) 0,
+      var(--px-ink) 8px,
+      transparent 8px,
+      transparent 14px
+    );
   }
 
   img {
     max-width: 100%;
     height: auto;
-    border-radius: 12px;
+    border-radius: 0;
     margin: 1.25em 0;
-    box-shadow: 0 4px 24px rgba(17, 24, 39, 0.08);
+    border: 3px solid var(--px-ink);
+    box-shadow: 4px 4px 0 var(--px-ink);
   }
 
   code {
-    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+    font-family: ui-monospace, 'Consolas', 'Menlo', monospace;
     font-size: 0.9em;
     padding: 0.15em 0.45em;
-    background: #f3f4f6;
-    color: #b45309;
-    border-radius: 6px;
-    border: 1px solid #e5e7eb;
+    background: var(--soft-read-solid);
+    color: #c026d3;
+    border-radius: 0;
+    border: 2px solid var(--px-ink);
+    box-shadow: 2px 2px 0 var(--px-ink);
+    word-break: break-word;
+    overflow-wrap: anywhere;
   }
 
+  /* 详情页：围栏代码块可折叠（&lt;details&gt; 由 markdown 渲染注入） */
+  .markdown-code-fold {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin: 1.25em 0;
+    border: 3px solid var(--px-ink);
+    box-shadow: 4px 4px 0 var(--px-ink);
+    background: #1a1333;
+    min-width: 0;
+    box-sizing: border-box;
+    /* 父级裁切宽度，避免长行把 details 整块撑出正文；横向滚动交给 .markdown-code-scroll */
+    overflow-x: hidden;
+    contain: inline-size;
+  }
+
+  .markdown-code-fold__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    font-family: var(--font-sans, system-ui, sans-serif);
+    font-size: 13px;
+    font-weight: 800;
+    color: #e8e0ff;
+    background: rgba(0, 0, 0, 0.28);
+    border-bottom: 3px dashed rgba(232, 224, 255, 0.35);
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+  }
+
+  .markdown-code-fold__lang {
+    text-transform: lowercase;
+    letter-spacing: 0.04em;
+  }
+
+  .markdown-code-fold__hint {
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 0.75;
+    flex-shrink: 0;
+  }
+
+  .markdown-code-fold__body {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  /*
+   * 横向滑动只看代码：滚动视口宽度 = 正文列，内层 __inner 按内容变宽
+   */
+  .markdown-code-scroll {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x pan-y;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(232, 224, 255, 0.45) rgba(0, 0, 0, 0.2);
+
+    &::-webkit-scrollbar {
+      height: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 0;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(232, 224, 255, 0.45);
+      border: 2px solid rgba(0, 0, 0, 0.15);
+      border-radius: 0;
+    }
+  }
+
+  .markdown-code-scroll__inner {
+    display: block;
+    width: max-content;
+    min-width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+  }
+
+  .markdown-code-scroll__inner pre,
+  .markdown-code-scroll pre {
+    margin: 0;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    width: auto;
+    min-width: 100%;
+    max-width: none;
+    overflow-x: visible;
+    overflow-y: visible;
+  }
+
+  /* 代码块：限制在正文宽度内，过长时在本区域内横向滑动（触摸板 / 手机横滑） */
   pre {
+    display: block;
+    width: 100%;
+    max-width: 100%;
     margin: 1.25em 0;
     padding: 1rem 1.15rem;
-    background: #1e293b;
-    color: #e2e8f0;
-    border-radius: 12px;
+    background: #1a1333;
+    color: #e8e0ff;
+    border-radius: 0;
+    border: 3px solid var(--px-ink);
+    box-shadow: 4px 4px 0 var(--px-ink);
+    box-sizing: border-box;
+    min-width: 0;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x pan-y;
     font-size: 0.875rem;
     line-height: 1.6;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(232, 224, 255, 0.45) rgba(0, 0, 0, 0.2);
+
+    &::-webkit-scrollbar {
+      height: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 0;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(232, 224, 255, 0.45);
+      border: 2px solid rgba(0, 0, 0, 0.15);
+      border-radius: 0;
+    }
 
     code {
+      display: block;
+      width: max-content;
+      min-width: 100%;
       padding: 0;
       background: transparent;
       color: inherit;
       border: none;
       font-size: inherit;
       border-radius: 0;
+      box-shadow: none;
+      white-space: pre;
+      word-break: normal;
+      overflow-wrap: normal;
     }
   }
 
@@ -153,26 +315,35 @@
     margin: 1.25em 0;
     border-collapse: collapse;
     font-size: 0.95em;
-    border-radius: 10px;
+    border-radius: 0;
     overflow: hidden;
-    box-shadow: 0 0 0 1px #e5e7eb;
+    border: 3px solid var(--px-ink);
+    box-shadow: 4px 4px 0 var(--px-ink);
   }
 
   th,
   td {
     padding: 0.65em 1em;
-    border: 1px solid #e5e7eb;
+    border: 2px solid var(--px-ink);
     text-align: left;
   }
 
   th {
-    background: #f9fafb;
-    font-weight: 600;
-    color: #111827;
+    background: var(--soft-accent-2);
+    font-weight: 900;
+    color: var(--px-ink);
   }
 
   tr:nth-child(even) td {
-    background: #fafafa;
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  @media (max-width: 480px) {
+    pre,
+    .markdown-code-scroll pre {
+      padding: 0.75rem 0.65rem;
+      font-size: 0.8125rem;
+    }
   }
 }
 

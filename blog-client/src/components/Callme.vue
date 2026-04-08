@@ -8,7 +8,7 @@
       </li>
       <li>
         <i class="iconfont icon-github-fill"></i>
-        <span><a href="https://gitee.com/snail_wn" target="_blank">https://github.com/codezzzzzzzz/</a></span>
+        <span><a href="https://github.com/codezzzzzzzz/" target="_blank">https://github.com/codezzzzzzzz/</a></span>
       </li>
       <li>
         <i class="iconfont icon-weixin"></i>
@@ -26,16 +26,19 @@
 .call-me {
   width: 100%;
   padding: 24px;
-  background-color: #fff;
-  border-radius: 8px;
+  background: var(--soft-surface-raised);
+  border-radius: 0;
+  border: 3px solid var(--px-ink);
   box-sizing: border-box;
+  box-shadow: var(--nu-raised);
 
   .title {
-    font-weight: 600;
+    font-weight: 700;
     font-size: 18px;
-    color: #000000;
+    color: var(--soft-text);
     line-height: 28px;
     margin-bottom: 16px;
+    font-family: var(--font-display);
   }
 
   ul {
@@ -49,19 +52,25 @@
       }
 
       .iconfont {
-        font-size: 16px;
-        color: #8E6FF7;
-        margin-right: 10px;
+        font-size: 18px;
+        color: var(--soft-accent);
+        margin-right: 12px;
       }
 
       span {
-        font-weight: 400;
-        font-size: 16px;
-        color: #4B5563;
+        font-weight: 500;
+        font-size: 15px;
+        color: var(--soft-text-muted);
         line-height: 24px;
 
         a {
-          color: #4B5563;
+          color: var(--soft-accent);
+          cursor: pointer;
+          transition: color var(--transition-soft);
+
+          &:hover {
+            color: var(--soft-accent-hover);
+          }
         }
       }
     }

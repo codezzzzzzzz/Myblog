@@ -1,9 +1,7 @@
 <template>
   <div class="login">
     <div class="login-hd">
-      <div class="login-logo">
-        <img src="@/assets/logo.jpg" alt="">
-      </div>
+
       <div class="i18n">
         <el-dropdown>
           <span class="el-dropdown-link">
@@ -32,7 +30,7 @@
           <el-checkbox v-model="remember" label="记住我" size="default" />
           <router-link to="/forget-password">忘记密码？</router-link>
         </div>
-        <el-button class="login-btn" size="large" color="#71377E" @click="login">登录</el-button>
+        <el-button class="login-btn" size="large" color="#ff3b8d" @click="login">登录</el-button>
         <div class="go-register">
           还没有账号？
           <router-link to="/register">立即注册</router-link>
@@ -81,8 +79,9 @@ const login = async () => {
 <style lang="less" scoped>
 .login {
   width: 100vw;
-  height: 100vh;
-  background: linear-gradient(145deg, #FAF5FF 0%, #FFFFFF 100%);
+  min-height: 100vh;
+  background: var(--soft-bg);
+  background-image: linear-gradient(165deg, var(--soft-bg-top) 0%, var(--soft-bg) 50%, #dfe5ef 100%);
   position: relative;
 
   .login-hd {
@@ -97,19 +96,27 @@ const login = async () => {
     .login-logo {
       width: 150px;
       height: 40px;
+      border-radius: 0;
+      padding: 4px 8px;
+      border: 3px solid var(--px-ink);
+      box-shadow: var(--nu-raised-sm);
+      background: var(--soft-read);
 
       img {
         width: 100%;
+        display: block;
+        border-radius: 0;
       }
     }
   }
 
   .login-wrap {
-    width: 448px;
-    background: #FFFFFF;
-    box-shadow: 0px 20px 25px -5px rgba(0, 0, 0, 0.1), 0px 8px 10px -6px rgba(0, 0, 0, 0.1);
-    border-radius: 16px;
-    padding: 32px;
+    width: min(448px, calc(100vw - 40px));
+    background: var(--soft-surface-raised);
+    box-shadow: var(--nu-raised);
+    border-radius: 0;
+    border: 3px solid var(--px-ink);
+    padding: 36px 32px;
     box-sizing: border-box;
     position: absolute;
     left: 50%;
@@ -119,16 +126,17 @@ const login = async () => {
     .title {
       font-weight: 700;
       font-size: 24px;
-      color: #1F2937;
+      color: var(--soft-text);
       line-height: 32px;
       text-align: center;
       margin-bottom: 8px;
+      font-family: var(--font-display);
     }
 
     .desc {
-      font-weight: 400;
+      font-weight: 500;
       font-size: 16px;
-      color: #4B5563;
+      color: var(--soft-text-muted);
       line-height: 24px;
       text-align: center;
       margin-bottom: 32px;
@@ -136,8 +144,19 @@ const login = async () => {
 
     .login-form {
       .input {
-        --el-input-focus-border-color: #71377E;
+        --el-input-focus-border-color: var(--soft-accent);
         margin-bottom: 24px;
+      }
+
+      :deep(.el-input__wrapper) {
+        border-radius: 0;
+        background: var(--soft-read);
+        border: 3px solid var(--px-ink);
+        box-shadow: var(--nu-inset-sm);
+      }
+
+      :deep(.el-input__wrapper.is-focus) {
+        box-shadow: var(--nu-raised-sm);
       }
 
       .remember {
@@ -146,37 +165,51 @@ const login = async () => {
         align-items: center;
 
         .el-checkbox {
-          --el-checkbox-text-color: #4B5563;
-          font-weight: 400;
-          --el-checkbox-checked-text-color: #71377E;
-          --el-checkbox-input-border-color-hover: #71377E;
-          --el-checkbox-checked-input-border-color: #71377E;
-          --el-checkbox-checked-bg-color: #71377E;
+          --el-checkbox-text-color: var(--soft-text-muted);
+          font-weight: 500;
+          --el-checkbox-checked-text-color: var(--soft-accent);
+          --el-checkbox-input-border-color-hover: var(--soft-accent);
+          --el-checkbox-checked-input-border-color: var(--soft-accent);
+          --el-checkbox-checked-bg-color: var(--soft-accent);
         }
 
         a {
-          font-weight: 400;
+          font-weight: 600;
           font-size: 14px;
-          color: #71377E;
+          color: var(--soft-accent);
           line-height: 20px;
+          cursor: pointer;
+
+          &:hover {
+            color: var(--soft-accent-hover);
+          }
         }
       }
 
       .login-btn {
         margin-top: 24px;
         width: 100%;
+        border-radius: 0;
+        border: 3px solid var(--px-ink) !important;
+        box-shadow: var(--nu-raised) !important;
       }
 
       .go-register {
         margin-top: 24px;
-        font-weight: 400;
+        font-weight: 500;
         font-size: 16px;
-        color: #4B5563;
+        color: var(--soft-text-muted);
         line-height: 24px;
         text-align: center;
 
         a {
-          color: #71377E;
+          color: var(--soft-accent);
+          font-weight: 600;
+          cursor: pointer;
+
+          &:hover {
+            color: var(--soft-accent-hover);
+          }
         }
       }
     }
@@ -189,9 +222,9 @@ const login = async () => {
     height: 72px;
     line-height: 72px;
     text-align: center;
-    font-weight: 400;
-    font-size: 16px;
-    color: #4B5563;
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--soft-text-muted);
   }
 }
 </style>

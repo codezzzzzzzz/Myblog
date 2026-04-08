@@ -20,8 +20,9 @@
 <style lang="less" scoped>
 .forget {
   width: 100vw;
-  height: 100vh;
-  background: linear-gradient(145deg, #FAF5FF 0%, #FFFFFF 100%);
+  min-height: 100vh;
+  background: var(--soft-bg);
+  background-image: linear-gradient(165deg, var(--soft-bg-top) 0%, var(--soft-bg) 50%, #dfe5ef 100%);
   position: relative;
 
   .forget-hd {
@@ -35,19 +36,27 @@
     .forget-logo {
       width: 150px;
       height: 40px;
+      border-radius: 0;
+      padding: 4px 8px;
+      border: 3px solid var(--px-ink);
+      box-shadow: var(--nu-raised-sm);
+      background: var(--soft-read);
 
       img {
         width: 100%;
+        display: block;
+        border-radius: 0;
       }
     }
   }
 
   .forget-wrap {
-    width: 448px;
-    background: #fff;
-    box-shadow: 0px 20px 25px -5px rgba(0, 0, 0, 0.1), 0px 8px 10px -6px rgba(0, 0, 0, 0.1);
-    border-radius: 16px;
-    padding: 32px;
+    width: min(448px, calc(100vw - 40px));
+    background: var(--soft-surface-raised);
+    box-shadow: var(--nu-raised);
+    border-radius: 0;
+    border: 3px solid var(--px-ink);
+    padding: 36px 32px;
     box-sizing: border-box;
     position: absolute;
     left: 50%;
@@ -58,19 +67,27 @@
     .title {
       font-weight: 700;
       font-size: 24px;
-      color: #1F2937;
+      color: var(--soft-text);
       margin-bottom: 8px;
+      font-family: var(--font-display);
     }
 
     .desc {
       font-size: 16px;
-      color: #4B5563;
+      color: var(--soft-text-muted);
       margin-bottom: 24px;
+      font-weight: 500;
     }
 
     .back {
-      color: #71377E;
+      color: var(--soft-accent);
       font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color var(--transition-soft);
+      &:hover {
+        color: var(--soft-accent-hover);
+      }
     }
   }
 
@@ -81,8 +98,9 @@
     height: 72px;
     line-height: 72px;
     text-align: center;
-    font-size: 16px;
-    color: #4B5563;
+    font-size: 15px;
+    color: var(--soft-text-muted);
+    font-weight: 500;
   }
 }
 </style>

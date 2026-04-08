@@ -9,14 +9,22 @@
 </script>
 
 <style lang="less" scoped>
-.footer{
-  height: 70px;
-  line-height: 70px;
+.footer {
+  min-height: var(--footer-h);
+  line-height: 1.5;
+  padding: 14px var(--layout-page-pad);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   width: 100%;
-  background-color: #fff;
-  font-weight: 400;
-  font-size: 14px;
-  color: #6B7280;
+  box-sizing: border-box;
+  background: var(--soft-surface-raised);
+  font-weight: 500;
+  font-size: clamp(12px, 2.8vw, 14px);
+  color: var(--soft-text-muted);
+  border-top: 4px solid var(--px-ink);
+  box-shadow: 0 -4px 0 var(--px-ink-mid);
+  border-radius: 0;
 }
 </style>

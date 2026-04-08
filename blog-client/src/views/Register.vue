@@ -1,9 +1,6 @@
 <template>
   <div class="register">
     <div class="register-hd">
-      <div class="register-logo">
-        <img src="@/assets/logo.jpg" alt="">
-      </div>
       <div class="i18n">
         <el-dropdown>
           <span class="el-dropdown-link">
@@ -31,7 +28,7 @@
         <el-input prefix-icon="Lock" class="input" size="large" v-model="passwordAgain" type="password"
           placeholder="请再次输入密码" show-password />
         <div class="tip">用户名 2～20 个字符，支持字母、数字、下划线和中文；密码至少 6 位</div>
-        <el-button class="register-btn" size="large" color="#71377E" :loading="loading" @click="register">注册</el-button>
+        <el-button class="register-btn" size="large" color="#ff3b8d" :loading="loading" @click="register">注册</el-button>
         <div class="go-login">
           已有账号？
           <router-link to="/login">立即登录</router-link>
@@ -112,8 +109,9 @@ const register = async () => {
 <style lang="less" scoped>
 .register {
   width: 100vw;
-  height: 100vh;
-  background: linear-gradient(145deg, #FAF5FF 0%, #FFFFFF 100%);
+  min-height: 100vh;
+  background: var(--soft-bg);
+  background-image: linear-gradient(165deg, var(--soft-bg-top) 0%, var(--soft-bg) 50%, #dfe5ef 100%);
   position: relative;
 
   .register-hd {
@@ -128,19 +126,27 @@ const register = async () => {
     .register-logo {
       width: 150px;
       height: 40px;
+      border-radius: 0;
+      padding: 4px 8px;
+      border: 3px solid var(--px-ink);
+      box-shadow: var(--nu-raised-sm);
+      background: var(--soft-read);
 
       img {
         width: 100%;
+        display: block;
+        border-radius: 0;
       }
     }
   }
 
   .register-wrap {
-    width: 448px;
-    background: #FFFFFF;
-    box-shadow: 0px 20px 25px -5px rgba(0, 0, 0, 0.1), 0px 8px 10px -6px rgba(0, 0, 0, 0.1);
-    border-radius: 16px;
-    padding: 32px;
+    width: min(448px, calc(100vw - 40px));
+    background: var(--soft-surface-raised);
+    box-shadow: var(--nu-raised);
+    border-radius: 0;
+    border: 3px solid var(--px-ink);
+    padding: 36px 32px;
     box-sizing: border-box;
     position: absolute;
     left: 50%;
@@ -150,16 +156,17 @@ const register = async () => {
     .title {
       font-weight: 700;
       font-size: 24px;
-      color: #1F2937;
+      color: var(--soft-text);
       line-height: 32px;
       text-align: center;
       margin-bottom: 8px;
+      font-family: var(--font-display);
     }
 
     .desc {
-      font-weight: 400;
+      font-weight: 500;
       font-size: 16px;
-      color: #4B5563;
+      color: var(--soft-text-muted);
       line-height: 24px;
       text-align: center;
       margin-bottom: 32px;
@@ -167,13 +174,24 @@ const register = async () => {
 
     .register-form {
       .input {
-        --el-input-focus-border-color: #71377E;
+        --el-input-focus-border-color: var(--soft-accent);
         margin-bottom: 24px;
+      }
+
+      :deep(.el-input__wrapper) {
+        border-radius: 0;
+        background: var(--soft-read);
+        border: 3px solid var(--px-ink);
+        box-shadow: var(--nu-inset-sm);
+      }
+
+      :deep(.el-input__wrapper.is-focus) {
+        box-shadow: var(--nu-raised-sm);
       }
 
       .tip {
         font-size: 12px;
-        color: #6B7280;
+        color: var(--soft-text-muted);
         line-height: 18px;
         margin-bottom: 16px;
       }
@@ -181,18 +199,27 @@ const register = async () => {
       .register-btn {
         margin-top: 0;
         width: 100%;
+        border-radius: 0;
+        border: 3px solid var(--px-ink) !important;
+        box-shadow: var(--nu-raised) !important;
       }
 
       .go-login {
         margin-top: 24px;
-        font-weight: 400;
+        font-weight: 500;
         font-size: 16px;
-        color: #4B5563;
+        color: var(--soft-text-muted);
         line-height: 24px;
         text-align: center;
 
         a {
-          color: #71377E;
+          color: var(--soft-accent);
+          font-weight: 600;
+          cursor: pointer;
+
+          &:hover {
+            color: var(--soft-accent-hover);
+          }
         }
       }
     }
@@ -205,9 +232,9 @@ const register = async () => {
     height: 72px;
     line-height: 72px;
     text-align: center;
-    font-weight: 400;
-    font-size: 16px;
-    color: #4B5563;
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--soft-text-muted);
   }
 }
 </style>

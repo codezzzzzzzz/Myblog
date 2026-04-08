@@ -1,12 +1,34 @@
 <template>
   <div class="article">
-    <div class="title">最新文章</div>
+    <div class="title">{{ listTitle }}</div>
     <LayoutLeftRight>
       <template v-slot:left>
-        <div class="arcitle-card" @click="goDetail(item.id)" v-for="item in articleList" :key="item.id">
+        <template v-if="listLoading && articleList.length === 0">
+          <div v-for="n in 5" :key="'sk-' + n" class="arcitle-card arcitle-card--skeleton">
+            <el-skeleton animated :throttle="{ leading: 0 }">
+              <template #template>
+                <div class="sk-article-row">
+                  <el-skeleton-item variant="image" class="sk-article-thumb" />
+                  <div class="sk-article-text">
+                    <el-skeleton-item variant="h1" class="sk-article-h1" />
+                    <el-skeleton-item variant="text" class="sk-line" />
+                    <el-skeleton-item variant="text" class="sk-line sk-line--wide" />
+                  </div>
+                </div>
+                <el-skeleton-item variant="text" class="sk-line sk-line--short" />
+              </template>
+            </el-skeleton>
+          </div>
+        </template>
+        <template v-else>
+        <div class="arcitle-card" @click="goDetail(item.id)" v-for="(item, idx) in articleList" :key="item.id">
           <div class="card-body">
             <div v-if="item.cover_pic" class="cover-thumb">
-              <img :src="resolveMediaUrl(item.cover_pic)" alt="" loading="lazy" />
+              <LazyImage
+                :src="resolveMediaUrl(item.cover_pic)"
+                :alt="item.title || ''"
+                :eager="idx < 3"
+              />
             </div>
             <div class="card-text">
               <div class="name">{{ item.title }}</div>
@@ -43,6 +65,7 @@
             </div>
           </div>
         </div>
+        </template>
       </template>
 
       <template v-slot:right>
@@ -57,28 +80,63 @@
 <script setup>
 import LayoutLeftRight from '@/components/layoutLeftRight.vue'
 import Category from '@/components/Category.vue';
-import Callme from '@/components/Callme.vue';
+import Callme from '@/components/Callme.vue'
+import LazyImage from '@/components/LazyImage.vue'
 import { randomColor } from '@/utils/randomColor.js'
 import { getAllArticleList } from '@/api/index.js'
-import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { formateDate } from '@/utils/formateDate.js'
 import { resolveMediaUrl } from '@/utils/mediaUrl.js'
 
+const route = useRoute()
 const articleList = ref([])
 const totalPage = ref(0)
 const page = ref(1)
 const size = 5
+const listLoading = ref(true)
 
-const getData = async () => {
-  const res = await getAllArticleList({ page: page.value, size: size })
-  console.log(res);
-  articleList.value = [...articleList.value, ...res.data]
-  totalPage.value = res.totalPage
+function searchKeyword() {
+  const q = route.query.q
+  return typeof q === 'string' ? q.trim() : ''
 }
 
-// 获取文章列表
-onMounted(async () => {
+const listTitle = computed(() => {
+  const k = searchKeyword()
+  return k ? `搜索结果：${k}` : '最新文章'
+})
+
+const getData = async () => {
+  try {
+    const kw = searchKeyword()
+    const res = await getAllArticleList({
+      page: page.value,
+      size,
+      q: kw || undefined
+    })
+    articleList.value = [...articleList.value, ...res.data]
+    totalPage.value = res.totalPage
+  } finally {
+    listLoading.value = false
+  }
+}
+
+function resetListAndFetch() {
+  articleList.value = []
+  page.value = 1
+  totalPage.value = 0
+  listLoading.value = true
+  getData()
+}
+
+watch(
+  () => route.query.q,
+  () => {
+    resetListAndFetch()
+  }
+)
+
+onMounted(() => {
   getData()
 })
 
@@ -115,34 +173,84 @@ const getNextPage = () => {
 
 const router = useRouter()
 const goDetail = (id) => {
-  router.push({path: '/detail', query: { id: id }})
+  router.push({ path: '/detail', query: { id } })
 }
 
 </script>
 
 <style lang="less" scoped>
 .article {
-  background-color: #F9FAFB;
+  background: transparent;
+
+  .sk-article-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 24px;
+    align-items: flex-start;
+  }
+  .sk-article-thumb {
+    width: 200px !important;
+    height: 120px !important;
+    flex-shrink: 0;
+  }
+  .sk-article-text {
+    flex: 1;
+    min-width: 0;
+  }
+  .sk-article-h1 {
+    width: 85% !important;
+    margin-bottom: 14px !important;
+  }
+  .sk-line {
+    width: 100% !important;
+    margin-bottom: 8px !important;
+  }
+  .sk-line--wide {
+    width: 92% !important;
+  }
+  .sk-line--short {
+    width: 60% !important;
+  }
+  .arcitle-card--skeleton {
+    cursor: default;
+    pointer-events: none;
+    &:hover {
+      transform: none;
+      box-shadow: var(--nu-raised);
+    }
+  }
 
   .title {
     font-weight: 700;
-    font-size: 36px;
-    color: #1F2937;
-    line-height: 40px;
-    padding: 32px 104px 0 104px;
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    color: var(--soft-text);
+    line-height: 1.2;
+    padding: 24px var(--layout-page-pad) 8px;
+    font-family: var(--font-display);
   }
 
   .arcitle-card {
     width: 100%;
-    background-color: #fff;
+    background: var(--soft-read-solid);
     padding: 24px;
     box-sizing: border-box;
-    border-radius: 16px;
-    box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -2px rgba(0, 0, 0, 0.1);
-    margin-bottom: 32px;
+    border-radius: 0;
+    border: 3px solid var(--px-ink);
+    box-shadow: var(--nu-raised);
+    margin-bottom: 28px;
     cursor: pointer;
-    &:hover{
-      box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.2), 0px 2px 4px -2px rgba(0, 0, 0, 0.2);
+    transition: box-shadow var(--transition-soft), transform var(--transition-soft);
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        box-shadow: var(--nu-hover);
+        transform: translate(-2px, -2px);
+      }
+    }
+
+    &:active {
+      transform: translate(2px, 2px);
+      box-shadow: var(--nu-pressed);
     }
 
     .card-body {
@@ -156,9 +264,11 @@ const goDetail = (id) => {
       flex-shrink: 0;
       width: 200px;
       height: 120px;
-      border-radius: 12px;
+      border-radius: 0;
       overflow: hidden;
-      background: #f3f4f6;
+      border: 2px solid var(--px-ink);
+      background: var(--soft-surface);
+      box-shadow: 2px 2px 0 var(--px-ink);
 
       img {
         width: 100%;
@@ -176,16 +286,17 @@ const goDetail = (id) => {
 
     .name {
       font-weight: 700;
-      font-size: 30px;
-      color: #1F2937;
-      line-height: 36px;
-      margin-bottom: 16px;
+      font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+      color: var(--soft-text);
+      line-height: 1.25;
+      margin-bottom: 14px;
+      font-family: var(--font-display);
     }
 
     .desc {
-      font-weight: 400;
-      font-size: 18px;
-      color: #4B5563;
+      font-weight: 500;
+      font-size: 17px;
+      color: var(--soft-text-muted);
       line-height: 28px;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -197,11 +308,13 @@ const goDetail = (id) => {
     .control {
       display: flex;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
 
       .control-left {
         display: flex;
-        color: #6B7280;
-        font-weight: 400;
+        color: var(--soft-text-muted);
+        font-weight: 500;
         font-size: 14px;
         align-items: center;
 
@@ -209,7 +322,7 @@ const goDetail = (id) => {
           margin-right: 16px;
 
           .iconfont {
-            color: #8E6FF7;
+            color: var(--soft-accent);
             margin-right: 5px;
           }
         }
@@ -218,14 +331,69 @@ const goDetail = (id) => {
       .control-right {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
 
         .tag {
-          padding: 4px 12px;
-          border-radius: 100px;
-          background-color: #6B7280;
-          font-weight: 400;
-          font-size: 14px;
+          padding: 5px 12px;
+          border-radius: var(--soft-radius-pill);
+          font-weight: 600;
+          font-size: 13px;
           margin-left: 8px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .article {
+    .sk-article-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .sk-article-thumb {
+      width: 100% !important;
+      height: 180px !important;
+      max-height: 48vw;
+    }
+
+    .arcitle-card {
+      padding: 18px;
+
+      .card-body {
+        flex-direction: column;
+        align-items: stretch;
+        margin-bottom: 18px;
+      }
+
+      .cover-thumb {
+        width: 100%;
+        height: 180px;
+        max-height: 48vw;
+      }
+
+      .name {
+        font-size: 1.2rem;
+      }
+
+      .desc {
+        font-size: 15px;
+        line-height: 24px;
+        -webkit-line-clamp: 3;
+      }
+
+      .control {
+        flex-direction: column;
+        align-items: flex-start;
+
+        .control-left {
+          flex-wrap: wrap;
+        }
+
+        .control-right .tag {
+          margin-left: 0;
+          margin-right: 8px;
+          margin-top: 4px;
         }
       }
     }

@@ -474,28 +474,33 @@ onMounted(async () => {
 <style lang="less" scoped>
 .edit-article {
   min-height: 100vh;
-  background-color: #f5f7fa;
+  background: transparent;
   padding: 20px 0;
 
   .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 var(--layout-page-pad);
+    box-sizing: border-box;
 
     .page-title {
       font-size: 24px;
-      font-weight: 600;
+      font-weight: 700;
       margin-bottom: 20px;
-      color: #333;
+      color: var(--soft-text);
+      font-family: var(--font-display);
     }
 
     .edit-form {
-      border-radius: 16px;
-      border: 1px solid #e8eaed;
+      border-radius: 0;
+      border: 3px solid var(--px-ink);
       overflow: hidden;
+      background: var(--soft-surface-raised);
+      box-shadow: var(--nu-raised);
 
       :deep(.el-card__body) {
         padding: 28px 32px 36px;
+        background: transparent;
       }
 
     .article-edit-form {
@@ -523,7 +528,7 @@ onMounted(async () => {
       :deep(.el-form-item__label) {
         font-size: 14px;
         font-weight: 600;
-        color: #374151;
+        color: var(--soft-text);
         line-height: 1.45;
         height: auto !important;
         padding: 0 0 10px 0;
@@ -582,66 +587,61 @@ onMounted(async () => {
       }
 
       :deep(.el-input__wrapper) {
-        border-radius: 10px;
+        border-radius: 0;
         padding: 10px 14px;
         min-height: 44px;
-        box-shadow: none;
-        border: 1px solid #e5e7eb;
-        background-color: #fafafa;
-        transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+        box-shadow: var(--nu-inset-sm);
+        border: none;
+        background-color: var(--soft-read);
+        transition: box-shadow var(--transition-soft), background 0.2s;
       }
 
       :deep(.el-input__wrapper:hover) {
-        border-color: #d1d5db;
-        background-color: #fff;
+        background-color: var(--soft-read-solid);
       }
 
       :deep(.el-input__wrapper.is-focus) {
-        border-color: #8b5cf6;
-        background-color: #fff;
-        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+        background-color: var(--soft-read-solid);
+        box-shadow: var(--nu-inset-sm), 0 0 0 2px var(--soft-accent-soft);
       }
 
       :deep(.el-textarea__inner) {
-        border-radius: 10px;
+        border-radius: 0;
         padding: 12px 14px;
         min-height: 96px;
-        border: 1px solid #e5e7eb;
-        background-color: #fafafa;
-        box-shadow: none;
-        transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+        border: none;
+        background-color: var(--soft-read);
+        box-shadow: var(--nu-inset-sm);
+        transition: box-shadow var(--transition-soft), background 0.2s;
+        color: var(--soft-text);
       }
 
       :deep(.el-textarea__inner:hover) {
-        border-color: #d1d5db;
-        background-color: #fff;
+        background-color: var(--soft-read-solid);
       }
 
       :deep(.el-textarea__inner:focus) {
-        border-color: #8b5cf6;
-        background-color: #fff;
-        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+        background-color: var(--soft-read-solid);
+        box-shadow: var(--nu-inset-sm), 0 0 0 2px var(--soft-accent-soft);
       }
 
       :deep(.el-select .el-select__wrapper) {
-        border-radius: 10px;
+        border-radius: 0;
         min-height: 44px;
         padding: 6px 12px;
-        border: 1px solid #e5e7eb;
-        background-color: #fafafa;
-        box-shadow: none;
-        transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+        border: none;
+        background-color: var(--soft-read);
+        box-shadow: var(--nu-inset-sm);
+        transition: box-shadow var(--transition-soft), background 0.2s;
       }
 
       :deep(.el-select .el-select__wrapper:hover) {
-        border-color: #d1d5db;
-        background-color: #fff;
+        background-color: var(--soft-read-solid);
       }
 
       :deep(.el-select .el-select__wrapper.is-focused) {
-        border-color: #8b5cf6;
-        background-color: #fff;
-        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+        background-color: var(--soft-read-solid);
+        box-shadow: var(--nu-inset-sm), 0 0 0 2px var(--soft-accent-soft);
       }
 
       :deep(.form-date.el-date-editor) {
@@ -667,26 +667,27 @@ onMounted(async () => {
       .md-form-label__title {
         font-size: 14px;
         font-weight: 600;
-        color: #374151;
+        color: var(--soft-text);
       }
 
       .field-hint {
         font-size: 12px;
         font-weight: 400;
-        color: #9ca3af;
+        color: var(--soft-text-muted);
         max-width: 520px;
       }
 
       .cover-upload {
         padding: 16px;
-        background: linear-gradient(180deg, #fafafa 0%, #f3f4f6 100%);
-        border-radius: 12px;
-        border: 1px dashed #d1d5db;
-        transition: border-color 0.2s, background 0.2s;
+        background: var(--soft-surface);
+        border-radius: 0;
+        border: 2px dashed rgba(124, 106, 232, 0.35);
+        box-shadow: var(--nu-inset-sm);
+        transition: border-color 0.2s, background 0.2s, box-shadow var(--transition-soft);
 
         &:hover {
-          border-color: #c4b5fd;
-          background: #faf5ff;
+          border-color: var(--soft-accent);
+          background: var(--soft-accent-soft);
         }
 
         .cover-preview {
@@ -698,7 +699,7 @@ onMounted(async () => {
             width: 200px;
             height: 120px;
             object-fit: cover;
-            border-radius: 4px;
+            border-radius: 0;
           }
 
           .el-button {
@@ -706,7 +707,7 @@ onMounted(async () => {
             bottom: 0;
             left: 0;
             width: 100%;
-            border-radius: 0 0 4px 4px;
+            border-radius: 0;
             opacity: 0.8;
           }
         }
@@ -743,21 +744,22 @@ onMounted(async () => {
       .md-panel {
         display: flex;
         flex-direction: column;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
+        border: none;
+        border-radius: 0;
         overflow: hidden;
-        background: #fff;
-        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+        background: var(--soft-read-solid);
+        box-shadow: var(--shadow-readable);
       }
 
       .md-panel__head {
         flex-shrink: 0;
         padding: 10px 14px;
         font-size: 13px;
-        font-weight: 600;
-        color: #374151;
-        background: linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%);
-        border-bottom: 1px solid #e5e7eb;
+        font-weight: 700;
+        color: var(--soft-text);
+        background: var(--soft-surface-raised);
+        border-bottom: 1px solid rgba(197, 206, 220, 0.45);
+        font-family: var(--font-display);
       }
 
       .md-textarea {
@@ -770,17 +772,17 @@ onMounted(async () => {
         font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
         font-size: 14px;
         line-height: 1.65;
-        color: #111827;
-        background: #fafafa;
+        color: var(--soft-text);
+        background: var(--soft-read);
         box-sizing: border-box;
         outline: none;
 
         &::placeholder {
-          color: #9ca3af;
+          color: var(--soft-text-muted);
         }
 
         &:focus {
-          background: #fff;
+          background: var(--soft-read-solid);
         }
       }
 
@@ -791,7 +793,7 @@ onMounted(async () => {
         max-height: ~"min(70vh, 640px)";
         overflow: auto;
         padding: 16px 18px;
-        background: #fff;
+        background: var(--soft-read-solid);
       }
 
       .markdown-body--live {
@@ -804,7 +806,7 @@ onMounted(async () => {
         gap: 16px;
         margin-top: 12px;
         font-size: 13px;
-        color: #6b7280;
+        color: var(--soft-text-muted);
 
         .saved {
           color: #16a34a;

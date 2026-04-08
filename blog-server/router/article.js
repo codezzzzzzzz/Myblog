@@ -112,10 +112,10 @@ router.get('/getAllArticleCategory', async (ctx, next) => {
 
 // 所有文章
 router.get('/getAllArticleList', async (ctx, next) => {
-  const { page, size } = ctx.query
+  const { page, size, q } = ctx.query
   try {
-    const res = await getAllArticleList({ page, size })  // 查询所有文章
-    const total = await getAllArticleCount()  // 查询文章总数量
+    const res = await getAllArticleList({ page, size, q })
+    const total = await getAllArticleCount(q)
     const tags = await oneArticleTags()  // 查询文章标签
 
     res.forEach(item => {
@@ -126,20 +126,13 @@ router.get('/getAllArticleList', async (ctx, next) => {
       })
     })
 
-    if (res.length) {
-      ctx.body = {
-        code: 200,
-        data: res,
-        totalPage: Math.ceil(total[0].count / Number(size)),
-        msg: '查询成功'
-      }
-    } else {
-      ctx.body = {
-        code: 200,
-        data: [],
-        totalPage: 0,
-        msg: '暂无数据'
-      }
+    const count = total[0]?.count ?? 0
+    const totalPage = Math.max(1, Math.ceil(count / Number(size) || 5))
+    ctx.body = {
+      code: 200,
+      data: res,
+      totalPage: count === 0 ? 0 : totalPage,
+      msg: res.length ? '查询成功' : '暂无数据'
     }
   } catch (error) {
     ctx.body = {

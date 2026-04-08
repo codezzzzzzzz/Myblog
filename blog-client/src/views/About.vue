@@ -44,79 +44,93 @@ import { DEFAULT_AVATAR_URL } from '@/utils/mediaUrl.js'
 .blog-about {
   .about-content__left {
     .user-info {
-      padding: 24px;
-      background-color: #fff;
-      border-radius: 8px;
+      padding: 26px;
+      background: var(--soft-surface-raised);
+      border-radius: 0;
+      border: 3px solid var(--px-ink);
       display: flex;
       align-items: center;
+      box-shadow: var(--nu-raised);
 
       .avatar {
         width: 80px;
         height: 80px;
-        border-radius: 50%;
+        border-radius: 0;
+        border: 3px solid var(--px-ink);
         overflow: hidden;
-        margin-right: 16px;
+        margin-right: 18px;
+        box-shadow: var(--nu-raised-sm);
 
         img {
           height: 100%;
+          width: 100%;
+          object-fit: cover;
+          display: block;
         }
       }
 
       .user-desc {
+        flex: 1;
+        min-width: 0;
+
         .name {
           font-size: 20px;
-          font-weight: 600;
+          font-weight: 700;
           line-height: 28px;
           margin-bottom: 8px;
+          color: var(--soft-text);
+          font-family: var(--font-display);
         }
 
         .describle {
-          font-weight: 400;
+          font-weight: 500;
           font-size: 16px;
-          color: #4B5563;
+          color: var(--soft-text-muted);
           line-height: 24px;
           margin-bottom: 12px;
         }
 
         .tag span {
-          font-size: 14px;
-          color: #4B5563;
+          font-size: 13px;
+          color: var(--soft-text-muted);
           line-height: 20px;
-          padding: 4px 12px;
-          background-color: #F3F4F6;
-          border-radius: 100px;
+          padding: 6px 14px;
+          background: var(--soft-surface);
+          border-radius: var(--soft-radius-pill);
+          border: 2px solid var(--px-ink);
           margin-right: 8px;
           display: inline-block;
+          box-shadow: 2px 2px 0 var(--px-ink);
+          font-weight: 700;
         }
       }
     }
 
     .about-card {
       margin-top: 32px;
-      padding: 24px;
-      background-color: #fff;
-      border-radius: 8px;
+      padding: 26px;
+      background: var(--soft-surface-raised);
+      border-radius: 0;
+      border: 3px solid var(--px-ink);
+      box-shadow: var(--nu-raised);
 
       .title {
         font-size: 20px;
-        font-weight: 600;
-        color: #000;
+        font-weight: 700;
+        color: var(--soft-text);
         line-height: 28px;
         margin-bottom: 16px;
+        font-family: var(--font-display);
       }
 
       .text {
         font-size: 16px;
-        color: #4B5563;
+        color: var(--soft-text-muted);
         line-height: 24px;
+        font-weight: 500;
       }
     }
   }
 
-  @media screen and (max-width: 1200px) {
-    .about-model__right {
-      display: none;
-    }
-  }
 }
 </style>

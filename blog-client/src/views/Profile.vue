@@ -8,7 +8,28 @@
             <p class="desc">编辑头像、昵称与个人签名，将展示在文章详情页。</p>
           </div>
 
-          <div v-if="loading" class="state">加载中...</div>
+          <el-skeleton
+            v-if="loading"
+            animated
+            :throttle="{ leading: 0 }"
+            class="form-card form-card--skeleton"
+          >
+            <template #template>
+              <div class="sk-profile-avatar-row">
+                <span class="label">头像</span>
+                <div class="sk-profile-avatar-col">
+                  <el-skeleton-item variant="image" class="sk-profile-avatar" />
+                  <el-skeleton-item variant="button" class="sk-profile-upload-btn" />
+                  <el-skeleton-item variant="text" class="sk-profile-hint" />
+                </div>
+              </div>
+              <el-skeleton-item variant="text" class="sk-form-label" />
+              <el-skeleton-item variant="text" class="sk-form-input" />
+              <el-skeleton-item variant="text" class="sk-form-label sk-form-label--2" />
+              <el-skeleton-item variant="rect" class="sk-form-textarea" />
+              <el-skeleton-item variant="button" class="sk-form-submit" />
+            </template>
+          </el-skeleton>
           <div v-else class="form-card">
             <div class="avatar-row">
               <span class="label">头像</span>
@@ -43,7 +64,7 @@
                 />
               </el-form-item>
               <el-form-item>
-                <el-button type="primary" color="#8E6FF7" :loading="saving" @click="saveProfile">保存资料</el-button>
+                <el-button type="primary" color="#ff3b8d" :loading="saving" @click="saveProfile">保存资料</el-button>
               </el-form-item>
             </el-form>
           </div>
@@ -278,47 +299,121 @@ const saveProfile = async () => {
 .blog-profile {
   .profile-left {
     .card {
-      padding: 24px;
-      background-color: #fff;
-      border-radius: 8px;
+      padding: 26px;
+      background: var(--soft-surface-raised);
+      border-radius: 0;
+      border: 3px solid var(--px-ink);
       margin-bottom: 24px;
+      box-shadow: var(--nu-raised);
       .title {
         font-size: 20px;
-        font-weight: 600;
-        color: #000;
+        font-weight: 700;
+        color: var(--soft-text);
         line-height: 28px;
         margin-bottom: 8px;
+        font-family: var(--font-display);
       }
       .desc {
         font-size: 16px;
-        color: #4b5563;
+        color: var(--soft-text-muted);
         line-height: 24px;
+        font-weight: 500;
       }
     }
 
-    .state {
-      padding: 48px;
-      text-align: center;
-      color: #6b7280;
+    .form-card--skeleton {
+      padding: 28px 24px 32px;
+      background: var(--soft-surface-raised);
+      border-radius: 0;
+      border: 3px solid var(--px-ink);
+      box-shadow: var(--nu-raised);
+    }
+    .sk-profile-avatar-row {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(197, 206, 220, 0.45);
+      .label {
+        flex: 0 0 48px;
+        font-size: 14px;
+        color: var(--soft-text);
+        font-weight: 600;
+        padding-top: 8px;
+      }
+    }
+    .sk-profile-avatar-col {
+      flex: 1;
+    }
+    .sk-profile-avatar {
+      width: 88px !important;
+      height: 88px !important;
+      margin-bottom: 12px !important;
+    }
+    .sk-profile-upload-btn {
+      width: 168px !important;
+      height: 32px !important;
+      margin-bottom: 8px !important;
+    }
+    .sk-profile-hint {
+      width: 280px !important;
+      max-width: 100%;
+    }
+    .sk-form-label {
+      width: 48px !important;
+      margin-bottom: 8px !important;
+    }
+    .sk-form-label--2 {
+      margin-top: 20px;
+    }
+    .sk-form-input {
+      width: 100% !important;
+      height: 40px !important;
+      margin-bottom: 4px !important;
+    }
+    .sk-form-textarea {
+      width: 100% !important;
+      height: 96px !important;
+      margin-bottom: 20px !important;
+    }
+    .sk-form-submit {
+      width: 120px !important;
+      height: 40px !important;
     }
 
     .form-card {
       padding: 28px 24px 32px;
-      background: #fff;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
+      background: var(--soft-surface-raised);
+      border-radius: 0;
+      border: 3px solid var(--px-ink);
+      box-shadow: var(--nu-raised);
+
+      :deep(.el-input__wrapper) {
+        border-radius: 0;
+        background: var(--soft-read);
+        border: 3px solid var(--px-ink);
+        box-shadow: var(--nu-inset-sm);
+      }
+
+      :deep(.el-textarea__inner) {
+        border-radius: 0;
+        background: var(--soft-read);
+        border: 3px solid var(--px-ink);
+        box-shadow: var(--nu-inset-sm);
+      }
 
       .avatar-row {
         display: flex;
         gap: 20px;
         margin-bottom: 24px;
         padding-bottom: 24px;
-        border-bottom: 1px solid #f3f4f6;
+        border-bottom: 1px solid rgba(197, 206, 220, 0.45);
 
         .label {
           flex: 0 0 48px;
           font-size: 14px;
-          color: #374151;
+          color: var(--soft-text);
+          font-weight: 600;
           padding-top: 8px;
         }
 
@@ -327,22 +422,24 @@ const saveProfile = async () => {
           .preview {
             display: block;
             margin-bottom: 12px;
+            box-shadow: var(--nu-raised-sm);
+          }
+
+          :deep(.el-avatar) {
+            border-radius: 0 !important;
+            border: 3px solid var(--px-ink);
+            box-shadow: 3px 3px 0 var(--px-ink);
           }
           .hint {
             margin-top: 8px;
             font-size: 12px;
-            color: #9ca3af;
+            color: var(--soft-text-muted);
           }
         }
       }
     }
   }
 
-  @media screen and (max-width: 1200px) {
-    .profile-right {
-      display: none;
-    }
-  }
 }
 
 .image-cropper-wrap {

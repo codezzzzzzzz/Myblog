@@ -1,10 +1,33 @@
 <template>
-  <div class="my-articles" :class="{ 'my-articles--empty': !articles.length }">
+  <div
+    class="my-articles"
+    :class="{ 'my-articles--empty': !listLoading && !articles.length }"
+  >
     <div class="container">
       <h1 class="page-title">我的文章</h1>
 
+      <div v-if="listLoading" class="my-articles-skeleton">
+        <el-skeleton v-for="n in 4" :key="'msk-' + n" animated :throttle="{ leading: 0 }" class="my-articles-skeleton__row">
+          <template #template>
+            <div class="sk-my-row">
+              <el-skeleton-item variant="image" class="sk-my-cover" />
+              <div class="sk-my-text">
+                <el-skeleton-item variant="h3" class="sk-my-title" />
+                <el-skeleton-item variant="text" class="sk-my-line" />
+                <el-skeleton-item variant="text" class="sk-my-line sk-my-line--short" />
+                <div class="sk-my-actions">
+                  <el-skeleton-item variant="button" class="sk-my-btn" />
+                  <el-skeleton-item variant="button" class="sk-my-btn" />
+                </div>
+              </div>
+            </div>
+          </template>
+        </el-skeleton>
+      </div>
+
+      <template v-else-if="articles.length > 0">
       <!-- 创建文章按钮 -->
-      <el-button v-if="articles.length" type="primary" class="create-btn" @click="navigateToCreate">
+      <el-button type="primary" class="create-btn" @click="navigateToCreate">
         <el-icon>
           <Plus />
         </el-icon>
@@ -12,10 +35,14 @@
       </el-button>
 
       <!-- 文章列表 -->
-      <el-card class="article-list" v-if="articles.length > 0">
-        <div v-for="article in articles" :key="article.id" class="article-item">
+      <el-card class="article-list">
+        <div v-for="(article, idx) in articles" :key="article.id" class="article-item">
           <div class="article-cover" v-if="article.cover_pic">
-            <img :src="resolveMediaUrl(article.cover_pic)" alt="文章封面">
+            <LazyImage
+              :src="resolveMediaUrl(article.cover_pic)"
+              alt="文章封面"
+              :eager="idx < 2"
+            />
           </div>
           <div class="article-content">
             <h3 class="article-title">{{ article.title }}</h3>
@@ -34,9 +61,10 @@
           </div>
         </div>
       </el-card>
+      </template>
 
       <!-- 空状态（无文章或已全部删除） -->
-      <div v-else class="empty-state-wrap">
+      <div v-else-if="!listLoading" class="empty-state-wrap">
         <el-empty description="还没有文章，写点什么吧" class="empty-state">
           <template #image>
             <div class="empty-state__icon" aria-hidden="true">
@@ -65,15 +93,18 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
+import LazyImage from '@/components/LazyImage.vue'
 import { getMyArticles, deleteArticle as deleteArticleApi } from '@/api/index.js'
 import { formateDate } from '@/utils/formateDate.js'
 import { resolveMediaUrl } from '@/utils/mediaUrl.js'
 
 const router = useRouter()
 const articles = ref([])
+const listLoading = ref(true)
 
 // 获取我的文章列表
-const fetchMyArticles = async () => {
+const fetchMyArticles = async (silent = false) => {
+  if (!silent) listLoading.value = true
   try {
     const res = await getMyArticles()
     if (res.code === 200) {
@@ -82,6 +113,8 @@ const fetchMyArticles = async () => {
   } catch (error) {
     ElMessage.error('获取文章列表失败')
     console.error(error)
+  } finally {
+    if (!silent) listLoading.value = false
   }
 }
 
@@ -116,7 +149,7 @@ const deleteArticle = (id) => {
       const res = await deleteArticleApi(id)
       if (res.code === 200) {
         ElMessage.success('删除成功')
-        fetchMyArticles() // 重新获取文章列表
+        fetchMyArticles(true) // 静默刷新，避免整页骨架闪烁
       }
     } catch (error) {
       ElMessage.error('删除失败')
@@ -136,7 +169,7 @@ onMounted(() => {
 <style lang="less" scoped>
 .my-articles {
   min-height: 100vh;
-  background-color: #f5f7fa;
+  background: transparent;
   padding: 20px 0;
 
   &.my-articles--empty .container {
@@ -161,32 +194,93 @@ onMounted(() => {
   .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 var(--layout-page-pad);
+    box-sizing: border-box;
 
     .page-title {
       font-size: 24px;
-      font-weight: 600;
+      font-weight: 700;
       margin-bottom: 20px;
-      color: #333;
+      color: var(--soft-text);
+      font-family: var(--font-display);
+    }
+
+    .my-articles-skeleton {
+      margin-bottom: 20px;
+    }
+    .my-articles-skeleton__row {
+      margin-bottom: 20px;
+      padding: 22px;
+      background: var(--soft-surface-raised);
+      border: 3px solid var(--px-ink);
+      box-shadow: var(--nu-raised);
+    }
+    .sk-my-row {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+    .sk-my-cover {
+      width: 120px !important;
+      height: 80px !important;
+      flex-shrink: 0;
+    }
+    .sk-my-text {
+      flex: 1;
+      min-width: 0;
+    }
+    .sk-my-title {
+      width: 70% !important;
+      margin-bottom: 12px !important;
+    }
+    .sk-my-line {
+      width: 100% !important;
+      margin-bottom: 8px !important;
+    }
+    .sk-my-line--short {
+      width: 55% !important;
+    }
+    .sk-my-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .sk-my-btn {
+      width: 64px !important;
+      height: 32px !important;
     }
 
     .create-btn {
       margin-bottom: 20px;
+      border-radius: 0;
+      border: 3px solid var(--px-ink) !important;
+      box-shadow: var(--nu-raised) !important;
+    }
+
+    :deep(.article-list.el-card) {
+      background: var(--soft-surface-raised);
+      border: 3px solid var(--px-ink);
+      border-radius: 0;
+      box-shadow: var(--nu-raised);
+    }
+
+    :deep(.article-list .el-card__body) {
+      padding: 0;
     }
 
     .article-list {
       .article-item {
         display: flex;
-        padding: 20px;
-        border-bottom: 1px solid #e8e8e8;
-        transition: all 0.3s;
+        padding: 22px;
+        border-bottom: 1px solid rgba(197, 206, 220, 0.45);
+        transition: background var(--transition-soft);
 
         &:last-child {
           border-bottom: none;
         }
 
         &:hover {
-          background-color: #fafafa;
+          background: rgba(255, 255, 255, 0.45);
         }
 
         .article-cover {
@@ -199,7 +293,9 @@ onMounted(() => {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 4px;
+            border-radius: 0;
+            border: 2px solid var(--px-ink);
+            box-shadow: 2px 2px 0 var(--px-ink);
           }
         }
 
@@ -208,21 +304,23 @@ onMounted(() => {
 
           .article-title {
             font-size: 18px;
-            font-weight: 600;
+            font-weight: 700;
             margin-bottom: 10px;
-            color: #333;
+            color: var(--soft-text);
             cursor: pointer;
+            font-family: var(--font-display);
 
             &:hover {
-              color: #409eff;
+              color: var(--soft-accent);
             }
           }
 
           .article-desc {
             font-size: 14px;
-            color: #666;
+            color: var(--soft-text-muted);
             margin-bottom: 15px;
             line-height: 1.5;
+            font-weight: 500;
             overflow: hidden;
             text-overflow: ellipsis;
             display: -webkit-box;
@@ -237,7 +335,7 @@ onMounted(() => {
 
             .article-time {
               font-size: 12px;
-              color: #999;
+              color: var(--soft-text-muted);
             }
 
             .article-actions {
@@ -258,10 +356,10 @@ onMounted(() => {
       max-width: 440px;
       margin: 0 auto;
       padding: 56px 32px 48px;
-      background: #fff;
-      border-radius: 16px;
-      border: 1px solid #e8eaed;
-      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+      background: var(--soft-surface-raised);
+      border-radius: 0;
+      border: 3px solid var(--px-ink);
+      box-shadow: var(--nu-raised);
       text-align: center;
 
       :deep(.el-empty) {
@@ -303,8 +401,41 @@ onMounted(() => {
 
     .empty-state__btn {
       padding: 10px 22px;
-      border-radius: 10px;
-      font-weight: 500;
+      border-radius: 0;
+      font-weight: 900;
+      border: 3px solid var(--px-ink) !important;
+      box-shadow: var(--nu-raised) !important;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .my-articles {
+    .sk-my-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .sk-my-cover {
+      width: 100% !important;
+      height: 160px !important;
+    }
+
+    .article-list .article-item {
+      flex-direction: column;
+      align-items: stretch;
+
+      .article-cover {
+        width: 100%;
+        height: 160px;
+        margin-right: 0;
+        margin-bottom: 14px;
+      }
+
+      .article-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
     }
   }
 }
@@ -332,12 +463,10 @@ onMounted(() => {
   width: 400px;
   max-width: calc(100vw - 28px);
   padding: 0;
-  border-radius: 20px;
-  border: none;
-  background: #fff;
-  box-shadow:
-    0 0 0 1px rgba(15, 23, 42, 0.06),
-    0 32px 64px -12px rgba(15, 23, 42, 0.18);
+  border-radius: 0;
+  border: 4px solid var(--px-ink);
+  background: var(--soft-read-solid);
+  box-shadow: 8px 8px 0 var(--px-ink);
   overflow: hidden;
 }
 
@@ -379,9 +508,10 @@ onMounted(() => {
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  border-radius: 14px;
-  background: linear-gradient(145deg, #fff7ed 0%, #ffedd5 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border-radius: 0;
+  border: 3px solid var(--px-ink);
+  background: #ffe566;
+  box-shadow: 3px 3px 0 var(--px-ink);
   font-size: 24px !important;
 }
 
@@ -411,8 +541,8 @@ onMounted(() => {
   gap: 10px;
   padding: 20px 24px 22px;
   margin: 0;
-  background: linear-gradient(180deg, #fafbfc 0%, #f8fafc 100%);
-  border-top: 1px solid #f1f5f9;
+  background: var(--soft-surface);
+  border-top: 4px dashed var(--px-ink-mid);
 }
 
 .article-delete-msgbox .el-message-box__btns .el-button {
@@ -423,29 +553,31 @@ onMounted(() => {
 }
 
 .article-delete-msgbox__cancel.el-button {
-  border: 1px solid #e2e8f0 !important;
-  color: #475569 !important;
-  background: #fff !important;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  border: 3px solid var(--px-ink) !important;
+  color: var(--px-ink) !important;
+  background: #ffe566 !important;
+  border-radius: 0 !important;
+  box-shadow: 3px 3px 0 var(--px-ink) !important;
 }
 
 .article-delete-msgbox__cancel.el-button:hover {
-  border-color: #cbd5e1 !important;
-  color: #0f172a !important;
-  background: #f8fafc !important;
+  border-color: var(--px-ink) !important;
+  color: var(--px-ink) !important;
+  background: #fff3a0 !important;
 }
 
 .article-delete-msgbox__confirm.el-button--primary,
 .article-delete-msgbox__confirm.el-button {
-  border: none !important;
-  background: linear-gradient(180deg, #f87171 0%, #ef4444 100%) !important;
+  border: 3px solid var(--px-ink) !important;
+  background: #ff4757 !important;
   color: #fff !important;
-  box-shadow: 0 1px 2px rgba(239, 68, 68, 0.25), 0 4px 12px rgba(239, 68, 68, 0.2);
+  border-radius: 0 !important;
+  box-shadow: 3px 3px 0 var(--px-ink) !important;
 }
 
 .article-delete-msgbox__confirm.el-button--primary:hover,
 .article-delete-msgbox__confirm.el-button:hover {
-  background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%) !important;
-  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2), 0 6px 16px rgba(239, 68, 68, 0.25);
+  background: #ee3344 !important;
+  box-shadow: 4px 4px 0 var(--px-ink) !important;
 }
 </style>

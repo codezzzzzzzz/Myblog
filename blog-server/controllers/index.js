@@ -28,9 +28,9 @@ const allServices = {
   }
 }
 
-// 获取最新文章列表
+// 获取最新文章列表（首页展示，返回全部文章按时间倒序）
 const getNewsArticleList = () => {
-  let _sql = `SELECT * FROM article ORDER BY create_time DESC LIMIT 4;`
+  const _sql = `SELECT * FROM article ORDER BY create_time DESC, id DESC`
   return allServices.query(_sql)
 }
 // 获取文章分类
@@ -50,19 +50,31 @@ const getAllArticleCategory = () => {
                 article_count DESC;`
   return allServices.query(_sql)
 }
-// 获取所有文章
-const getAllArticleList = ({ page, size }) => {
-  let _sql = `SELECT *
-              FROM article
-              ORDER BY create_time DESC, id DESC
-              LIMIT ${size} OFFSET ${(page - 1) * size};`
-
-  return allServices.query(_sql)
+// 获取所有文章（可选关键词：标题 / 简介，LOCATE 避免 LIKE 通配符注入）
+const getAllArticleList = ({ page, size, q }) => {
+  const p = Math.max(1, parseInt(page, 10) || 1)
+  const s = Math.min(50, Math.max(1, parseInt(size, 10) || 5))
+  const offset = (p - 1) * s
+  const kw = q != null && String(q).trim() !== '' ? String(q).trim() : ''
+  if (kw) {
+    const sql = `SELECT * FROM article
+      WHERE LOCATE(?, title) > 0 OR LOCATE(?, article_desc) > 0
+      ORDER BY create_time DESC, id DESC
+      LIMIT ? OFFSET ?`
+    return allServices.query(sql, [kw, kw, s, offset])
+  }
+  const sql = `SELECT * FROM article ORDER BY create_time DESC, id DESC LIMIT ? OFFSET ?`
+  return allServices.query(sql, [s, offset])
 }
-// 文章总数量
-const getAllArticleCount = () => {
-  let _sql = `SELECT COUNT(*) AS count FROM article;`
-  return allServices.query(_sql)
+// 文章总数量（与列表同一筛选条件）
+const getAllArticleCount = (q) => {
+  const kw = q != null && String(q).trim() !== '' ? String(q).trim() : ''
+  if (kw) {
+    const sql = `SELECT COUNT(*) AS count FROM article
+      WHERE LOCATE(?, title) > 0 OR LOCATE(?, article_desc) > 0`
+    return allServices.query(sql, [kw, kw])
+  }
+  return allServices.query('SELECT COUNT(*) AS count FROM article')
 }
 // 每篇文章标签
 const oneArticleTags = (id) => {

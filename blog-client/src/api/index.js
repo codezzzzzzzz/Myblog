@@ -10,14 +10,11 @@ export const getAllArticleCategory = async () => {
   return await axios.get('/article/getAllArticleCategory')
 }
 
-// 获取文章列表
-export const getAllArticleList = async ({ page = 1, size = 5 }) => {
-  return await axios.get('/article/getAllArticleList', {
-    params: {
-      page,
-      size
-    }
-  })
+// 获取文章列表（q：可选，标题/简介关键词）
+export const getAllArticleList = async ({ page = 1, size = 5, q } = {}) => {
+  const params = { page, size }
+  if (q != null && String(q).trim() !== '') params.q = String(q).trim()
+  return await axios.get('/article/getAllArticleList', { params })
 }
 
 // 根据id获取文章详情
